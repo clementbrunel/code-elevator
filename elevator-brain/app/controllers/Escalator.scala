@@ -2,9 +2,18 @@ package controllers
 import play.api._
 import play.api.mvc._
 import play.Logger
+import models.State
+import models.InitialState
+import models.Action
+import models.Level
+import models.Person
+import models.Elevator
 
-object  Escalator  extends Controller {
 
+object Brain  extends Controller {
+  val elevator:Elevator=new Elevator()
+  
+  
   def call(atFloor:Int, to:String) = Action {
     Logger.debug("call atfloor" + atFloor + "To"+ to)
     Ok("")
