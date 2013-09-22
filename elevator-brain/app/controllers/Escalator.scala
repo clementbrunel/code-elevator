@@ -1,30 +1,39 @@
 package controllers
 import play.api._
 import play.api.mvc._
+import play.Logger
 
 object  Escalator  extends Controller {
 
   def call(atFloor:Int, to:String) = Action {
-    Ok(views.html.index("Your new application is ready : call atFloor" + atFloor + "to" + to))
+    Logger.debug("call atfloor" + atFloor + "To"+ to)
+    Ok("")
   }
   
   def go(floorToGo:Int) = Action {
-    Ok(views.html.index("Your new application is ready : floorToGo" + floorToGo))
+    Logger.debug("floorToGo" + floorToGo)
+    Ok("")
   }
   
   def userHasEntered() = Action {
-    Ok(views.html.index("Your new application is ready : userHasEntered"))
+    Logger.debug("userHasEntered")
+    Ok("")
   }
   
   def userHasExited() = Action {
-    Ok(views.html.index("Your new application is ready :userHasExited"))
+    Logger.debug("userHasExited")
+    Ok("")
   }
   
   def reset(message:String) = Action {
-    Ok(views.html.index("Your new application is ready :reset message : " + message))
+    Logger.debug("userHasExited")
+    Ok("")
   }
   
-
+  def nextCommand()=Action{
+    Logger.debug("userHasExited")
+    Ok("UP")
+  }
 }
 
 
