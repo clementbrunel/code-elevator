@@ -31,7 +31,7 @@ object  Escalator  extends Controller {
   }
   
   def nextCommand()=Action{
-    Logger.debug("userHasExited")
+    Logger.debug("nextCommand")
     Ok("UP")
   }
 }
