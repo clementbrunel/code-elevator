@@ -13,3 +13,9 @@ dist
 /.project
 /RUNNING_PID
 /.settings
+target
+.target
+bin
+.cache
+.target/
+bin/
