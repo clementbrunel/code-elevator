@@ -18,3 +18,8 @@ case class Open() extends Action{
 case class Close() extends Action{
   def label="CLOSE"
 }
+
+object DSL{
+implicit def tUpTypeToUp(tUp:models.Up.type)=Up()
+implicit def tDownTypeToDown(tUp:models.Down.type)=Down()
+}

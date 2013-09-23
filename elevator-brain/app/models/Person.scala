@@ -1,3 +1,5 @@
 package models
 
-case class Person (name:String,start:Level,stop:Level,direction:Action,state:PersonState)
+trait Person
+case class Waiter (callLevel:Level,direction:Action) extends Person
+case class Client (stop:Level) extends Person
