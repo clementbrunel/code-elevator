@@ -15,103 +15,107 @@ object Brain  extends Controller {
   
   def call(atFloor:Int, to:String) = Action {
     Logger.debug("call atfloor" + atFloor + "To"+ to)
-    val currentProblem =getProblemFromCache
-    val waiterList = currentProblem.waiters++(List(Waiter(Level(atFloor),Up)))
-    saveProblemToCache(currentProblem.clients,waiterList,currentProblem.state)
-    Logger.debug("Actual Size of waiters" +waiterList.size)
+    BuildingWaiters.++(atFloor, 1)
+    Logger.debug("call Waiters " +BuildingWaiters.levels) 
     Ok("")
   }
   
   def go(floorToGo:Int) = Action {
     Logger.debug("floorToGo" + floorToGo)
-    val currentProblem =getProblemFromCache
-    val clientList = currentProblem.clients++(List(Client(Level(floorToGo))))
-	saveProblemToCache(clientList,currentProblem.waiters,currentProblem.state)
-    Logger.debug("Actual Size of clients" +clientList.size)
+//    val currentProblem =Elevator.getProblemFromCache
+    BuildingClients.++(floorToGo, 1)
+//    val clientList = currentProblem.clients++(List(Client(Level(floorToGo))))
+//	Elevator.saveProblemToCache(clientList,currentProblem.waiters,currentProblem.state)
+    Logger.debug("go Clients" +BuildingClients.levels) 
     Ok("")
   }
   
   def userHasEntered() = Action {
     Logger.debug("userHasEntered")
     //Todo... A ammeliorer. Super lourd....
-    val currentProblem =getProblemFromCache
-    val waitersAtThisLevel = currentProblem.waiters.filter(waiter => waiter.callLevel==currentProblem.state.level).tail
-    val remainingWaiters = currentProblem.waiters.filter(waiter => waiter.callLevel!=currentProblem.state.level)++waitersAtThisLevel
-	saveProblemToCache(currentProblem.clients,remainingWaiters,currentProblem.state)
-    Logger.debug("Actual Size of waiters" +remainingWaiters.size)
+    BuildingWaiters.++(State.level,-1)
+//    val currentProblem =Elevator.getProblemFromCache
+//    val waitersAtThisLevel = currentProblem.waiters.filter(waiter => waiter.callLevel==currentProblem.state.level).tail
+//    val remainingWaiters = currentProblem.waiters.filter(waiter => waiter.callLevel!=currentProblem.state.level)++waitersAtThisLevel
+//	Elevator.saveProblemToCache(currentProblem.clients,remainingWaiters,currentProblem.state)
+    Logger.debug("userHasEntered" +BuildingWaiters.levels) 
     Ok("")
   }
   
   def userHasExited() = Action {
     Logger.debug("userHasExited")
      //Todo... A ammeliorer. Super lourd....
-    val currentProblem =getProblemFromCache
-    val remainingClients=currentProblem.clients.filter(client => client.stop==currentProblem.state.level).tail++currentProblem.clients.filter(client => client.stop!=currentProblem.state.level)
-    saveProblemToCache(remainingClients,currentProblem.waiters,currentProblem.state)
-    Logger.debug("Actual Size of clients" +remainingClients.size)
+    BuildingClients.++(State.level,-1)
+//    val currentProblem =Elevator.getProblemFromCache
+//    val remainingClients=currentProblem.clients.filter(client => client.stop==currentProblem.state.level).tail++currentProblem.clients.filter(client => client.stop!=currentProblem.state.level)
+//    Elevator.saveProblemToCache(remainingClients,currentProblem.waiters,currentProblem.state)
+    Logger.debug("userHasExited" +BuildingClients.levels) 
     Ok("")
   }
   
   def reset(message:String) = Action {
     Logger.debug("reset" + message)
-    saveProblemToCache(List(),List(),InitialState())
+    BuildingClients.reset
+    BuildingWaiters.reset
+    State.reset
+//    Elevator.saveProblemToCache(List(),List(),InitialState())
+    Logger.debug("reset Clients " +BuildingClients.levels + " Waiters " + BuildingWaiters.levels + " L " + State.level+ " A "+State.action.label+ "D "+ State.door) 
     Ok("")
   }
   
   def nextCommand()={
     Logger.debug("nextCommand")
-    val currentProblem =getProblemFromCache()
-    if (currentProblem.waiters.isEmpty && currentProblem.clients.isEmpty){
-      ActionAndListAction(CurrentState(currentProblem.state.level,Nothing()))
+//    val currentProblem =Elevator.getProblemFromCache()
+    Logger.debug("Client" +BuildingClients.levels)
+    Logger.debug("Waiters" +BuildingWaiters.levels)
+    if (BuildingWaiters.isEmpty && BuildingClients.isEmpty){
+       State.update(Nothing())
     }
     else { 
-	    val currentLevel=currentProblem.state.level
-	    val happyWaiters = currentProblem.waiters.filter(waiter => waiter.callLevel==currentLevel)
-	    val happyClients = currentProblem.clients.filter(client => client.stop==currentLevel)
-	    if (happyClients.isEmpty && happyWaiters.isEmpty){
-	      currentProblem.state.action match {
-		       case _:Open => 
-		           {
+	    val currentLevel=State.level
+//	    val happyWaiters = currentProblem.waiters.filter(waiter => waiter.callLevel==currentLevel)
+	    val happyWaiters= BuildingWaiters.levels.get(currentLevel).getOrElse("0")
+//	    val happyClients = currentProblem.clients.filter(client => client.stop==currentLevel)
+	    val happyClients = BuildingClients.levels.get(currentLevel).getOrElse("0")
+	    if (happyClients==0 && happyWaiters==0){
+	      State.door match {
+		       case _:Opened => 
+		           {//fermer la porte avant de partir!
 		            Logger.debug("CLOSE");
-		             ActionAndListAction(CurrentState(currentProblem.state.level,Close()))
+		            State.update(Close())
+//		             ActionAndListAction(CurrentState(State.level,Close(),Closed()))
 		            }
-		        case _ => ActionAndListAction(Elevator.calculDirection(currentProblem.clients,currentProblem.waiters,currentProblem.state))
+		        case _ => State.calculDirection()
 	        	}
 	    }
-	    else {
-	      Logger.debug("OPEN");  
-	      ActionAndListAction(CurrentState(currentProblem.state.level,Open()))
+	    else{
+	      State.door match {
+	        case _:Closed  		=>{	Logger.debug("OPEN");  
+	        						State.update(Open())
+	        					  }
+	        //BUG, les users ne rentrent pas si la porte est deja ouverte au bon etage quand ils arrivent
+	        case other  		=>{Logger.debug("Doors already opened, Come in!");  
+	        					   State.update(Nothing())	        					   
+	        					  }
+	      	}
+	      
 	    }
     }
+    ActionResponse
   }
   
   
-  def ActionAndListAction(state:State)=Action{
-    val currentProblem =getProblemFromCache
-    saveProblemToCache(currentProblem.clients,currentProblem.waiters,state)
-    Logger.debug("nextCommand ActionAndListAction" + state.action.label)
-    Ok(state.action.label) 
+  def ActionResponse()=Action{
+//    val currentProblem =Elevator.getProblemFromCache
+//    Elevator.saveProblemToCache(currentProblem.clients,currentProblem.waiters,state)
+    Logger.debug("nextCommand ActionAndListAction" + State.action.label)
+    Ok(State.action.label) 
   }
   
-  def getProblemFromCache():Elevator={
-    val elevRecup = Cache.getAs[Elevator]("ElevatorProblem") match {
-      case Some(elev)  => Some(elev)
-      case None 	   => None
-    }
-    Logger.debug("Problem recup from cache clients" +elevRecup)
-    optionElevarToElevator(elevRecup)
-  }
+
+
   
-  def optionElevarToElevator(option:Option[Elevator]):Elevator={
-    option.getOrElse(new Elevator())
-  }
-  
-  def saveProblemToCache(clients:List[Client],waiters:List[Waiter],state:State):Elevator={
-    val newElevator= new Elevator(clients,waiters,state)
-    Cache.set("ElevatorProblem",newElevator)
-    Logger.debug("Problem save to cache clients" +newElevator)
-    newElevator
-  }
+
 }
 
 
