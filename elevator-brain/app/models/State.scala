@@ -58,7 +58,3 @@ object State{
 }
 
 
-trait DoorState
-case class Opened() extends DoorState
-case class Closed() extends DoorState
-

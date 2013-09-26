@@ -21,7 +21,9 @@ case class Close() extends ElevatorAction{
 }
 
 
-
+trait DoorState
+case class Opened() extends DoorState
+case class Closed() extends DoorState
 
 object DSL{
 implicit def tUpTypeToUp(tUp:models.Up.type)=Up()
