@@ -15,28 +15,28 @@ object Brain  extends Controller {
   
   def call(atFloor:Int, to:String) = Action {
     Logger.debug("call atfloor" + atFloor + "To"+ to)
-    BuildingWaiters.++(atFloor, 1)
+    BuildingWaiters.++(atFloor, Waiter(atFloor,to))
     Logger.debug("call End Waiters " +BuildingWaiters.levels) 
     Ok("")
   }
   
   def go(floorToGo:Int) = Action {
     Logger.debug("floorToGo" + floorToGo)
-    BuildingClients.++(floorToGo, 1)
+    BuildingClients.++(floorToGo,Client(floorToGo))
     Logger.debug("go Clients" +BuildingClients.levels) 
     Ok("")
   }
   
   def userHasEntered() = Action {
     Logger.debug("userHasEntered")
-    BuildingWaiters.++(State.level,-1)
+    BuildingWaiters.--(State.level)
     Logger.debug("userHasEntered End" +BuildingWaiters.levels) 
     Ok("")
   }
   
   def userHasExited() = Action {
     Logger.debug("userHasExited")
-    BuildingClients.++(State.level,-1)
+    BuildingClients.--(State.level)
     Logger.debug("userHasExited End" +BuildingClients.levels) 
     Ok("")
   }
@@ -55,33 +55,44 @@ object Brain  extends Controller {
     Logger.debug("Client" +BuildingClients.levels)
     Logger.debug("Waiters" +BuildingWaiters.levels)
     if (BuildingWaiters.isEmpty && BuildingClients.isEmpty){
-       State.update(Nothing())
+       State.update(Nothing)
     }
     else { 
 	    val currentLevel=State.level
-	    val happyWaiters= BuildingWaiters.levels.get(currentLevel).getOrElse("0")
-	    val happyClients = BuildingClients.levels.get(currentLevel).getOrElse("0")
-	    if (happyClients==0 && happyWaiters==0){
-	      State.door match {
-		       case _:Opened => 
-		           {//Close the door before Start!
-		            Logger.debug("CLOSE");
-		            State.update(Close())
-		            }
-		        case _ => State.calculDirection()
-	        	}
-	    }
-	    else{
-	      State.door match {
-	        case _:Closed  		=>{	Logger.debug("OPEN");  
-	        						State.update(Open())
+	    val happyWaiters= BuildingWaiters.levels.getOrElse(currentLevel, Nil)
+	    val happyClients = BuildingClients.levels.getOrElse(currentLevel, Nil)
+	    (happyClients,happyWaiters,State.door) match {
+	      case(clients,_,Closed()) if clients.size>0=>{
+					        	Logger.debug("OPEN");  
+					            State.update(Open)
+	      							}
+	      case(_,waiters,Closed()) if waiters.size>0 =>{
+	      					if (!waiters.filter(waiter => (waiter.asInstanceOf[Waiter].direction.label==State.action.label)).isEmpty || BuildingClients.isEmpty) {
+	    	  				Logger.debug("Enter in Optimisation with direction :" + State.action.label +" BuildingClients.isEmpty " + BuildingClients.isEmpty);  
+    	  					State.update(Open)
+//	            			State.update(State.action)
+	      					}
+	      					else{
+	      					  Logger.debug("list of waiter no stop because of direction" + happyWaiters + " vs " +State.action )
+	      					  State.action match {
+	      					    case up:Up if State.level<5		=> State.update(Up); //pour eviter le blocage initial si appel au niveau zero et etape actuel nothing
+	      					    case down:Down if State.level>0	=> State.update(Down)
+	      					    case others => State.door match {
+	      					     	case opened:Opened => State.update(Nothing)
+	      					     	case closed:Closed => State.update(Open)
+	      					        }
+	      					    }
+	      					}
+	      }
+	      case (_,_,Closed()) => {
+	    	  				Logger.debug("Ferme et pas de client ou waiter a satisfaire")
+    	  					State.calculDirection()
+	      }
+	      case (_,_,Opened()) => {
+	    	  				//BUG, les users ne rentrent pas si la porte est deja ouverte au bon etage quand ils arrivent
+	    	  				Logger.debug("Doors already opened, Come in but closed then Reopen for Server");  
+    					    State.update(Close)	        					   
 	        					  }
-	        //BUG, les users ne rentrent pas si la porte est deja ouverte au bon etage quand ils arrivent
-	        case other  		=>{Logger.debug("Doors already opened, Come in but closed then Reopen for Server");  
-	        					   State.update(Close())	        					   
-	        					  }
-	      	}
-	      
 	    }
     }
     ActionResponse

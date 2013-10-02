@@ -1,28 +1,32 @@
 package models
 
 
-case class BuildingFile(levels:Map[Int,Int]){
-  def this (rdc:Int,top:Int)=this(((rdc to top).map(number => (number,0))).toMap)
+case class BuildingFile(levels:Map[Int,List[Person]]){
+  def this (rdc:Int,top:Int)=this(((rdc to top).map(number => (number,List()))).toMap)
 }
 object BuildingFile{
 	def initialState= new BuildingFile(0,5)
-	def reset(building:Map[Int,Int])=building.map(level => (level._1,0))
-	def isEmpty(building:Map[Int,Int])=building.filter( map => map._2!=0).isEmpty
-	def ++(level:Int,number:Int,building:Map[Int,Int])=building.updated(level, building.apply(level)+number)
+	def reset(building:Map[Int,List[Person]])=building.map(level => (level._1,List()))
+	def isEmpty(building:Map[Int,List[Person]])=building.filter( map => !map._2.isEmpty).isEmpty
+	def ++(level:Int,person:Person,building:Map[Int,List[Person]])=building.updated(level, building.apply(level).+:(person))
+	def --(level:Int,building:Map[Int,List[Person]])=building.updated(level, building.apply(level) match {case head::tail => tail; case others => Nil})
 }
 object BuildingWaiters{
-	var towerWaiters=BuildingFile.initialState
-	var levels=towerWaiters.levels
+	var initialTowerWaiters=BuildingFile.initialState
+	var levels=initialTowerWaiters.levels
 	def isEmpty=BuildingFile.isEmpty(levels)
 	def reset=levels=BuildingFile.reset(levels)
-	def ++(level:Int,number:Int)=levels=BuildingFile.++(level, number, levels)
+	def ++(level:Int,person:Waiter)=levels=BuildingFile.++(level, person, levels)
+	def --(level:Int)=levels=BuildingFile.--(level,levels)
 }
 object BuildingClients{
-	var towerClients=BuildingFile.initialState
-	var levels=towerClients.levels
+	var initialTowerClients=BuildingFile.initialState
+	var levels=initialTowerClients.levels
 	def isEmpty=BuildingFile.isEmpty(levels)
 	def reset=levels=BuildingFile.reset(levels)
-	def ++(level:Int,number:Int)=levels=BuildingFile.++(level, number, levels)
+	def ++(level:Int,person:Client)=levels=BuildingFile.++(level, person, levels)
+	def --(level:Int)=levels=BuildingFile.--(level,levels)
+  
 }
 
 
