@@ -53,8 +53,8 @@ object Brain  extends Controller {
   
   def nextCommand()={Timer.chrono {
 	    Logger.info("nextCommand")
-	    Logger.debug("Client" +BuildingClients.levels)
-	    Logger.debug("Waiters" +BuildingWaiters.levels)
+	    Logger.info("Client" +BuildingClients.levels)
+	    Logger.info("Waiters" +BuildingWaiters.levels)
 	    if (BuildingWaiters.isEmpty && BuildingClients.isEmpty){
 	       State.update(Nothing)
 	    }

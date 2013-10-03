@@ -42,12 +42,13 @@ object State{
     val map = (0 to 5).map (i=> (i,BuildingClients.levels.getOrElse(i,List()).size + BuildingWaiters.levels.getOrElse(i,List()).size)).toMap
     Logger.debug("map (level,pond" + map)
     val distances:List[(Int,Int,Int)]=doPonderation(map)
-//    val distances = map.span(level => level._1 < State.level)
+//    val distancesinf = distances.filter(level => level._2 < State.level)
+//    val distancessup = distances.filter(level => level._2 > State.level)
     Logger.debug("distances (diff,level,pond" + distances)
-//    val inf = distances._1.map(tuple => tuple._2).sum
-//    Logger.debug("inf" + inf)
-//    val sup = distances._2.map(tuple => tuple._2).sum
-//    Logger.debug("sup" + sup)
+//    val inf = distancesinf.map(tuple => tuple._1).sum
+//    Logger.info("inf" + inf)
+//    val sup = distancessup.map(tuple => tuple._1).sum
+//    Logger.info("sup" + sup)
 
 //    TODO eviter les demi tour pour un waiter.... par contre faire la direction sur la somme de la direction?
     (distances,State.level) match {
@@ -76,14 +77,14 @@ object State{
     val etap1= levels.filter(elem => elem._2!=0)
     Logger.debug("levels without useless levels" + etap1)
     //On calcul la difference avec le niveau actuel pour la ponderation
-    val etap2 = etap1.map (x => (x._2/Math.abs(level-x._1),x._1,x._2)).toList
+    val etap2 = etap1.map (x => (Math.abs(level-x._1),x._1,x._2)).toList
     Logger.debug("levels with difference" + etap2)
     
     //On change la ponderation avec la difference de level
-    val etap3= etap2.map(etap => ((etap._3/etap._1),etap._2,etap._3))
+    val etap3= etap2.map(etap => ((etap._1/etap._3),etap._2,etap._3))
     Logger.debug("levels with difference and pond" + etap3)
      //On tri par poids puis par nb de passage, vaut mieux deux mouvement pour 2 personnes que 1 pour 1.
-    val etap4= etap3.sortBy(diff => diff._1 -> diff._3).reverse
+    val etap4= etap3.sortBy(diff => diff._1 -> diff._3)
     Logger.info("levels with difference and pond and sorted " + etap4)
     etap4
   }
