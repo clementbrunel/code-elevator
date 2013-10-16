@@ -5,11 +5,44 @@
 <html>
     <head>
         <title>@title</title>
+      
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("libs/css/bootstrap.min.css")">
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
         <script src="@routes.Assets.at("javascripts/jquery-1.9.0.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("libs/js/bootstrap.min.js")" type="text/javascript"></script>       
     </head>
     <body>
+    	<div class="row-fluid">
+	<div class="header">	
+		<div id="navbar">
+			<div class="navbar navbar-inverse span8 offset2 pull-left">
+				<div class="navbar-inner no-border">
+					<div class="nav-collapse pull-left">
+							<div class="navbar-text">
+								Elevator Brain
+							</div>
+					</div>
+					<div class="pull-right">
+							<div class="navbar-text">
+							By Kyoku & Hasto
+							</div>			
+					</div>
+				</div>
+			</div>
+		</div>	
+		<div class="span1">
+	        <!-- EMpty column -->
+		</div><!-- Fin span 2 -->
+	</div>
+	</div>
+	<div class="row-fluid">
+		<div class="span6 offset2" id="content">
         @content
+        </div>
+        <div class="span2" id="logoDiv">
+			<img src='@routes.Assets.at("images/intech_slide1.png")' id="logo">
+		</div>
+     </div>
     </body>
 </html>

@@ -4,11 +4,11 @@ import models.DSL._
 
 trait State{
     def level:Int
-    def action:ElevatorAction
+    def action:Command
     def door:DoorState
 }
-case class InitialState(level:Int=0,action:ElevatorAction=Nothing(),door:DoorState=Closed()) extends State
-case class CurrentState(currentLevel:Int,currentaction:ElevatorAction,doorState:DoorState) extends State{
+case class InitialState(level:Int=0,action:Command=Nothing(),door:DoorState=Closed()) extends State
+case class CurrentState(currentLevel:Int,currentaction:Command,doorState:DoorState) extends State{
   def level=currentLevel
   def action=currentaction
   def door=doorState
@@ -18,12 +18,12 @@ object State{
   var level:Int=0
   def ++()={level=level+1}
   def --()={level=level-1}
-  var action:ElevatorAction=Nothing()
+  var action:Command=Nothing()
   var door:DoorState=Closed()
   val start=InitialState()
   def reset={level=0;door=Closed()}
 
-  def update(processAction:ElevatorAction):Unit={processAction match {
+  def update(processAction:Command):Unit={processAction match {
     case open:Open => {door=Opened(); Logger.debug("Update State open, Open the door")}
     case close:Close => {door=Closed(); Logger.debug("Update State close, Close the door")}
     case up:Up =>  {State++; Logger.debug("Update State Up, level++")}

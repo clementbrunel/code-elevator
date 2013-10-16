@@ -3,7 +3,7 @@
 # ~~~~
 
 # Home page
-GET     /                           		controllers.Application.index
+GET     /                           		controllers.Brain.index
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               		controllers.Assets.at(path="/public", file)
@@ -14,4 +14,5 @@ GET		/go									controllers.Brain.go(floorToGo : Int)
 GET		/userHasEntered						controllers.Brain.userHasEntered()
 GET		/userHasExited						controllers.Brain.userHasExited()
 GET		/reset								controllers.Brain.reset(cause : String)
+GET		/resetManu							controllers.Brain.resetManu(cause : String)
 GET 	/nextCommand						controllers.Brain.nextCommand()

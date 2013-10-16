@@ -1,52 +1,42 @@
 package models
 
 
-case class BuildingFile(levels:Map[Int,List[Person]]){
-  def this (rdc:Int,top:Int)=this(((rdc to top).map(number => (number,List()))).toMap)
+case class BuildingFile(floors:Map[Int,List[Person]]){
+	def this (rdc:Int,top:Int)=this(((rdc to top).map(number => (number,List()))).toMap)
+	def this()= this(Specs.minLevel,Specs.maxLevel)
+	def subPerson(level:Int)=floors.updated(level, floors.apply(level) match {case head::tail => tail; case others => Nil})
+	def addPerson(level:Int,person:Person)=floors.updated(level, floors.apply(level).+:(person))
+	def isEmpty():Boolean=floors.filter( map => !map._2.isEmpty).isEmpty
+	def reset()=floors.map(level => (level._1,List()))
 }
 object BuildingFile{
-	def initialState= new BuildingFile(0,5)
-	def reset(building:Map[Int,List[Person]])=building.map(level => (level._1,List()))
-	def isEmpty(building:Map[Int,List[Person]])=building.filter( map => !map._2.isEmpty).isEmpty
-	def ++(level:Int,person:Person,building:Map[Int,List[Person]])=building.updated(level, building.apply(level).+:(person))
-	def --(level:Int,building:Map[Int,List[Person]])=building.updated(level, building.apply(level) match {case head::tail => tail; case others => Nil})
+	def initialState= new BuildingFile(Specs.minLevel,Specs.maxLevel)
+  	def reset(building:Map[Int,List[Person]])=building.map(level => (level._1,List()))
+	def isEmpty(building:Map[Int,List[Person]]):Boolean=building.filter( map => !map._2.isEmpty).isEmpty	
+	def addPerson(level:Int,person:Person,building:Map[Int,List[Person]])=building.updated(level, building.apply(level).+:(person))	
+	def subPerson(level:Int,building:Map[Int,List[Person]])=building.updated(level, building.apply(level) match {case head::tail => tail; case others => Nil})
+	
 }
 object BuildingWaiters{
 	var initialTowerWaiters=BuildingFile.initialState
-	var levels=initialTowerWaiters.levels
-	def isEmpty=BuildingFile.isEmpty(levels)
-	def reset=levels=BuildingFile.reset(levels)
-	def ++(level:Int,person:Waiter)=levels=BuildingFile.++(level, person, levels)
-	def --(level:Int)=levels=BuildingFile.--(level,levels)
+	var levels=initialTowerWaiters.floors
+	def isEmpty:Boolean=BuildingFile.isEmpty(levels)
+	def reset:Unit=levels=BuildingFile.reset(levels)
+	def ++(level:Int,person:Waiter)=levels=BuildingFile.addPerson(level, person,levels)
+	def --(level:Int)=levels=BuildingFile.subPerson(level,levels)
 }
+//case class BuildingClients(clients:List[Client])
 object BuildingClients{
 	var initialTowerClients=BuildingFile.initialState
-	var levels=initialTowerClients.levels
-	def isEmpty=BuildingFile.isEmpty(levels)
-	def reset=levels=BuildingFile.reset(levels)
-	def ++(level:Int,person:Client)=levels=BuildingFile.++(level, person, levels)
-	def --(level:Int)=levels=BuildingFile.--(level,levels)
-  
+	var levels=initialTowerClients.floors
+	def isEmpty:Boolean=BuildingFile.isEmpty(levels)
+	def reset:Unit=levels=BuildingFile.reset(levels)
+	def ++(level:Int,person:Client)=levels=BuildingFile.addPerson(level, person, levels)
+	def --(level:Int)=levels=BuildingFile.subPerson(level,levels)
 }
 
 
-//Backup Code 
-/*case class Level(floor:Int){
-  val max=5;
-  val min=0;
-  def ++ =Level(floor+1)
-  def -- =Level(floor-1)
-  def +(level:Level):Level=Level(Math.abs(floor+level.floor))
-  def -(level:Level):Level=Level(Math.abs(floor-level.floor))
-  def topPossible=floor+1<=max
-  def bottomPossible=floor-1>=min
+object Specs{
+  val minLevel=0
+  val maxLevel=5
 }
-trait Person
-case class Waiter (callLevel:Level,direction:ElevatorAction) extends Person
-case class Client (stop:Level) extends Person
-
-
-object Person {
- def waiter(level:Level,direction:ElevatorAction)= Waiter(level,direction)
- def client(stop:Level)= Client(stop)
-}  */

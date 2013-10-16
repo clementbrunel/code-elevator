@@ -1,44 +1,65 @@
 package models
 import play.Logger
 
-trait ElevatorAction{
+trait Command{
   def label:String
 }
-object ElevatorAction{
-  def labelToAction(label:String):ElevatorAction={
+object Command{
+  def labelToAction(label:String):Command={
     label match {
       case "UP" => Up()
       case "DOWN" => Down()
       case "OPEN" => Open()
       case "CLOSE" => Close()
+      case "RESET" => Reset()
       case other => Nothing()
     }
     
   }
 }
-case class Nothing() extends ElevatorAction{
+case class Nothing() extends Command{
   def label="NOTHING"
 }
-case class Up() extends ElevatorAction{
+case class Up() extends Command{
   def label="UP"
 }
-case class Down() extends ElevatorAction{
+case class Down() extends Command{
   def label="DOWN"
 }
-case class Open() extends ElevatorAction{
+case class Open() extends Command{
   def label="OPEN"
 }
-case class Close() extends ElevatorAction{
+case class Close() extends Command{
   def label="CLOSE"
 }
+case class Reset() extends Command{
+  def label="RESET"
+}
 
+trait Direction{
+  def label:String
+}
+object Direction{
+  def labelToDirection(label:String):Direction={
+    label match {
+      case "UP" => UpDirection()
+      case _ => DownDirection()
+    }
+  }
+}
+case class UpDirection() extends Direction{
+  def label="UP"
+}
+case class DownDirection() extends Direction{
+  def label="DOWN"
+}
 
 trait DoorState
 case class Opened() extends DoorState
 case class Closed() extends DoorState
 
 object DSL{
-implicit def StringToAction(label:String)=ElevatorAction.labelToAction(label)
+implicit def StringToAction(label:String)=Command.labelToAction(label)
 implicit def tUpTypeToUp(tUp:models.Up.type)=Up()
 implicit def tDownTypeToDown(tUp:models.Down.type)=Down()
 implicit def tNothingTypeToNothing(tUp:models.Nothing.type)=Nothing()

@@ -7,48 +7,91 @@ import models.DSL._
 import tools._
 import play.api.cache.Cache
 import play.api.Play.current
+import play.api.data._
+import play.api.data.Forms._
 
 
 
 
 object Brain  extends Controller {
   
-  
-  def call(atFloor:Int, to:String) = Action {
-    Logger.info("call atfloor" + atFloor + "To"+ to)
-    BuildingWaiters.++(atFloor, Waiter(atFloor,to))
-    Logger.debug("call End Waiters " +BuildingWaiters.levels) 
-    Ok("")
+	val ResetForm = Form(
+	    	"cause" -> nonEmptyText
+   )
+   var ResetManuAsked=false;
+  def CalcResponse(action:String="")= {
+	    Action {
+		    ResetManuAsked match {
+		      case false => Ok(action)
+		      case true => {
+		        Logger.info("*****************resetManuDone*************************" )
+		        ResetManuAsked=false;
+		        InternalServerError("OopsResetAsked")
+		      }
+		    }
+	    }
+  }
+  def index() = Action {
+    Ok(views.html.index(ResetManuAsked match {
+      case true 	=> "Reset in Progress"
+      case false 	=> "Application is ready"
+    },ResetForm))
+  }
+
+  def resetManu(message:String) = Action {implicit request =>
+    ResetForm.bindFromRequest.fold(
+				// Cas d erreurs du formulaire
+				errors => {
+				    Redirect(routes.Brain.index())
+				},
+				// Cas de reussite du formulaire
+				success => {
+					Logger.info("resetManu" + message)
+				    BuildingClients.reset
+				    BuildingWaiters.reset
+				    State.reset
+				    ResetManuAsked=true;
+				    Logger.debug("reset Clients " +BuildingClients.levels + " Waiters " + BuildingWaiters.levels + " L " + State.level+ " A "+State.action.label+ "D "+ State.door) 
+				    Redirect(routes.Brain.index())    
+				}
+    		)
   }
   
-  def go(floorToGo:Int) = Action {
+  def call(atFloor:Int, to:String) ={
+    Logger.info("call atfloor" + atFloor + "To"+ to)
+    BuildingWaiters.++(atFloor, Waiter(atFloor,Direction.labelToDirection(to)))
+    Logger.debug("call End Waiters " +BuildingWaiters.levels) 
+    CalcResponse("")
+  }
+  
+  def go(floorToGo:Int) =  {
     Logger.info("floorToGo" + floorToGo)
     BuildingClients.++(floorToGo,Client(floorToGo))
     Logger.debug("go Clients" +BuildingClients.levels) 
-    Ok("")
+    CalcResponse("")
   }
   
-  def userHasEntered() = Action {
+  def userHasEntered() =  {
     Logger.info("userHasEntered")
     BuildingWaiters.--(State.level)
     Logger.debug("userHasEntered End" +BuildingWaiters.levels) 
-    Ok("")
+    CalcResponse("")
   }
   
-  def userHasExited() = Action {
+  def userHasExited() =  {
     Logger.info("userHasExited")
     BuildingClients.--(State.level)
     Logger.debug("userHasExited End" +BuildingClients.levels) 
-    Ok("")
+    CalcResponse("")
   }
   
-  def reset(message:String) = Action {
+  def reset(message:String) =  {
     Logger.info("reset" + message)
     BuildingClients.reset
     BuildingWaiters.reset
     State.reset
     Logger.debug("reset Clients " +BuildingClients.levels + " Waiters " + BuildingWaiters.levels + " L " + State.level+ " A "+State.action.label+ "D "+ State.door) 
-    Ok("")
+    CalcResponse("")
   }
   
   def nextCommand()={Timer.chrono {
@@ -101,9 +144,9 @@ object Brain  extends Controller {
   }
 
   
-  def ActionResponse()=Action{
+  def ActionResponse()={
     Logger.info("nextCommand ActionAndListAction" + State.action.label)
-    Ok(State.action.label) 
+    CalcResponse(State.action.label) 
   }
   
 

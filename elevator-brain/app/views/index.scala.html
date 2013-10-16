@@ -1,7 +1,22 @@
-@(message: String)
-
+@(message: String,addResetForm:Form[String])
+@import helper._ 
 @main("Welcome to Play") {
 
-    @play20.welcome(message)
-
+	<div class="span6">
+		<p>Elevator Brain is ready</p>
+		<div id="reset">
+			@form(routes.Brain.resetManu("Manual Reset")){
+			<div>
+			Reset the application and send an Error to server
+				<span class="pull-right">			
+					<button type="submit" class="btn btn-danger pullright">Reset</button>				
+				</span>
+			</div>
+			@inputText(addResetForm("cause"),'_label -> "Cause*", 'class -> "span12", '_showErrors -> true)			
+			}
+			@message
+		</div>	
+	</div>
+	<div class="span6">
+	</div>
 }
