@@ -41,4 +41,6 @@ object BuildingClients{
 object Specs{
   val minLevel=0
   val maxLevel=5
+  
+  val detectionSeuil=3
 }

@@ -27,14 +27,8 @@ object Elevator{
   }
   
   def nextCommand:Command={
-//    	 if (CrashDetection.isKO(history)) {
-//    	   State.action match {
-//    	     //check last direction et
-//    	      case up:Up if State.level< Specs.maxLevel			=> State.update(Up); //on continue les actions pour eviter le bouclage!
-//		      case down:Down if State.level>Specs.minLevel 		=>State.update(Down)
-//    	   }
-//    	 }
-    	 
+    	val lastAction=State.action
+    	val nextCommand =  
     	if (BuildingWaiters.isEmpty && BuildingClients.isEmpty){
 	       State.update(Nothing)
 	    }
@@ -42,7 +36,7 @@ object Elevator{
 		    val currentLevel=State.level
 		    val happyWaiters= BuildingWaiters.levels.getOrElse(currentLevel, Nil)
 		    val happyClients = BuildingClients.levels.getOrElse(currentLevel, Nil)
-		    (happyClients,happyWaiters,State.door) match {
+		   (happyClients,happyWaiters,State.door) match {
 		      case(clients,_,Closed()) if clients.size>0=>{
 						        	Logger.debug("OPEN");  
 						            State.update(Open)
@@ -56,8 +50,8 @@ object Elevator{
 		      					else{
 		      					  Logger.debug("list of waiter no stop because of direction" + happyWaiters + " vs " +State.action )
 		      					  State.action match {
-		      					    case up:Up if State.level<5		=> State.update(Up); //pour eviter le blocage initial si appel au niveau zero et etape actuel nothing
-		      					    case down:Down if State.level>0	=> State.update(Down)
+		      					    case up:Up if State.level<Specs.minLevel		=> State.update(Up); //pour eviter le blocage initial si appel au niveau zero et etape actuel nothing
+		      					    case down:Down if State.level>Specs.maxLevel	=> State.update(Down)
 		      					    case others => State.door match {
 		      					     	case opened:Opened => State.update(Nothing)
 		      					     	case closed:Closed => State.update(Open)
@@ -76,5 +70,16 @@ object Elevator{
 		        					  }
 		    }
 	    }
+    	CrashDetection.add(history, State.level)
+    	 if (CrashDetection.isKO(history)) {
+    	   lastAction match {
+    	     //check last direction et
+    	      case up:Up if State.level< Specs.maxLevel			=> State.update(Up); //on continue les actions pour eviter le bouclage!
+		      case down:Down if State.level>Specs.minLevel 		=>State.update(Down)
+    	   }
+    	 }
+    	 else{
+    	   nextCommand
+    	 }   	
   }
 }
