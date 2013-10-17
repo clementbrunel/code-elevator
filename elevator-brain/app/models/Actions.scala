@@ -1,62 +1,66 @@
 package models
 import play.Logger
-
-trait Command{
+trait withLabel{
   def label:String
 }
+trait Command extends withLabel
+
 object Command{
   def labelToAction(label:String):Command={
     label match {
-      case "UP" => Up()
-      case "DOWN" => Down()
-      case "OPEN" => Open()
-      case "CLOSE" => Close()
-      case "RESET" => Reset()
-      case other => Nothing()
+      case "UP" 	=> Up()
+      case "DOWN" 	=> Down()
+      case "OPEN" 	=> Open()
+      case "CLOSE" 	=> Close()
+      case "RESET" 	=> Reset()
+      case other 	=> Nothing()
     }
     
   }
 }
 case class Nothing() extends Command{
-  def label="NOTHING"
+  def label = "NOTHING"
 }
 case class Up() extends Command{
-  def label="UP"
+  def label = "UP"
 }
 case class Down() extends Command{
-  def label="DOWN"
+  def label = "DOWN"
 }
 case class Open() extends Command{
-  def label="OPEN"
+  def label = "OPEN"
 }
 case class Close() extends Command{
-  def label="CLOSE"
+  def label = "CLOSE"
 }
 case class Reset() extends Command{
-  def label="RESET"
+  def label = "RESET"
 }
 
-trait Direction{
-  def label:String
-}
+trait Direction extends withLabel
+
 object Direction{
   def labelToDirection(label:String):Direction={
     label match {
-      case "UP" => UpDirection()
-      case _ => DownDirection()
+      case 	"UP" 	=> UpDirection()
+      case 	_ 		=> DownDirection()
     }
   }
 }
 case class UpDirection() extends Direction{
-  def label="UP"
+  def label = "UP"
 }
 case class DownDirection() extends Direction{
-  def label="DOWN"
+  def label = "DOWN"
 }
 
-trait DoorState
-case class Opened() extends DoorState
-case class Closed() extends DoorState
+trait DoorState extends withLabel
+case class Opened() extends DoorState{
+  def label = "Opened"
+}
+case class Closed() extends DoorState{
+  def label = "Closed"
+}
 
 object DSL{
 implicit def StringToAction(label:String)=Command.labelToAction(label)

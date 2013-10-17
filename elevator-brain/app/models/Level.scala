@@ -22,8 +22,9 @@ object BuildingWaiters{
 	var levels=initialTowerWaiters.floors
 	def isEmpty:Boolean=BuildingFile.isEmpty(levels)
 	def reset:Unit=levels=BuildingFile.reset(levels)
-	def ++(level:Int,person:Waiter)=levels=BuildingFile.addPerson(level, person,levels)
-	def --(level:Int)=levels=BuildingFile.subPerson(level,levels)
+	def add(level:Int,person:Waiter)=levels=BuildingFile.addPerson(level, person,levels)
+	def minus(level:Int)=levels=BuildingFile.subPerson(level,levels)
+	override def toString():String="BuildingWaiters" + levels.mkString(",")
 }
 //case class BuildingClients(clients:List[Client])
 object BuildingClients{
@@ -31,8 +32,9 @@ object BuildingClients{
 	var levels=initialTowerClients.floors
 	def isEmpty:Boolean=BuildingFile.isEmpty(levels)
 	def reset:Unit=levels=BuildingFile.reset(levels)
-	def ++(level:Int,person:Client)=levels=BuildingFile.addPerson(level, person, levels)
-	def --(level:Int)=levels=BuildingFile.subPerson(level,levels)
+	def add(level:Int,person:Client)=levels=BuildingFile.addPerson(level, person, levels)
+	def minus(level:Int)=levels=BuildingFile.subPerson(level,levels)
+	override def toString():String="BuildingClients" + levels.mkString(",")
 }
 
 

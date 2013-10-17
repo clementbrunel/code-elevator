@@ -1,13 +1,15 @@
 package models
+import play.Logger
 
-case class CrashDetection(history:List[Int]) {
-  
+
+object CrashDetection{
   val detectionSeuil=3
   var countAction=0;
   
-  def isLooped():Boolean={
+  def isLooped(history:List[Int]):Boolean={
     if (history.size == detectionSeuil){
       if ((history.head== history.tail.tail) && (history.head!= history.tail.head)){
+        Logger.warn("Cycle detected! ");
         return true;
       }
       else return false;
@@ -17,7 +19,7 @@ case class CrashDetection(history:List[Int]) {
     }
   }
   
-  def add(floor:Int):List[Int]={
+  def add(floor:Int,history:List[Int]):List[Int]={
     return List(floor)++history.take(detectionSeuil)
   }
   
@@ -28,7 +30,12 @@ case class CrashDetection(history:List[Int]) {
     countAction=0
   }
   def isCrashed():Boolean= {
-        return countAction > 2 * (Specs.minLevel - Specs.maxLevel);
+       val crashed =  countAction > 2 * (Specs.minLevel - Specs.maxLevel);
+       if (crashed){
+         Logger.warn("Application is Crashed!!! ");
+       }
+       crashed
     }
-
+  
+  def isKO(history:List[Int]):Boolean= isCrashed || isLooped(history)
 }

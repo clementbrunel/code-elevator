@@ -22,8 +22,12 @@ object State{
   var door:DoorState=Closed()
   val start=InitialState()
   def reset={level=0;door=Closed()}
+  
+  override def toString()={
+    "State { level:" + level + " action: " + action.label + " doors: " + door.label+"}"
+  }
 
-  def update(processAction:Command):Unit={processAction match {
+  def update(processAction:Command):Command={processAction match {
     case open:Open => {door=Opened(); Logger.debug("Update State open, Open the door")}
     case close:Close => {door=Closed(); Logger.debug("Update State close, Close the door")}
     case up:Up =>  {State++; Logger.debug("Update State Up, level++")}
@@ -32,10 +36,11 @@ object State{
   }
   Logger.debug("State after Update =  Level: " + State.level+ " Action : "+State.action.label+ " Doors : "+ State.door) 
   action=processAction
+  processAction
   }
   
   
-  def calculDirection():Unit={
+  def calculDirection():Command={
     //todo integrer la direction des waiters dans la prise de decision.... chiant et ca arrive jamais 1 fois en 10 min...
     
 //    val map = BuildingClients.levels ++ BuildingWaiters.levels .map{ case (k,v) => k -> (v.size + (BuildingClients.levels.get(level) match {case None => 0.toInt; case Some(list) => list.size})) } 
