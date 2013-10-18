@@ -28,13 +28,13 @@ object State{
   }
 
   def update(processAction:Command):Command={processAction match {
-    case open:Open => {door=Opened(); Logger.debug("Update State open, Open the door")}
-    case close:Close => {door=Closed(); Logger.debug("Update State close, Close the door")}
-    case up:Up =>  {State++; Logger.debug("Update State Up, level++")}
-    case down:Down => {State--; Logger.debug("Update State Down, level--")}
-    case nothing:Nothing => Logger.debug("Update State Nothing, No changement")
+    case open:Open => {door=Opened(); Log.debug("Update State open, Open the door")}
+    case close:Close => {door=Closed(); Log.debug("Update State close, Close the door")}
+    case up:Up =>  {State++; Log.debug("Update State Up, level++")}
+    case down:Down => {State--; Log.debug("Update State Down, level--")}
+    case nothing:Nothing => Log.debug("Update State Nothing, No changement")
   }
-  Logger.debug("State after Update =  Level: " + State.level+ " Action : "+State.action.label+ " Doors : "+ State.door) 
+  Log.debug("State after Update =  Level: " + State.level+ " Action : "+State.action.label+ " Doors : "+ State.door) 
   action=processAction
   processAction
   }
@@ -45,34 +45,34 @@ object State{
     
 //    val map = BuildingClients.levels ++ BuildingWaiters.levels .map{ case (k,v) => k -> (v.size + (BuildingClients.levels.get(level) match {case None => 0.toInt; case Some(list) => list.size})) } 
     val map = (0 to 5).map (i=> (i,BuildingClients.levels.getOrElse(i,List()).size + BuildingWaiters.levels.getOrElse(i,List()).size)).toMap
-    Logger.debug("map (level,pond" + map)
+    Log.debug("map (level,pond" + map)
     val distances:List[(Int,Int,Int)]=doPonderation(map)
 //    val distancesinf = distances.filter(level => level._2 < State.level)
 //    val distancessup = distances.filter(level => level._2 > State.level)
-    Logger.debug("distances (diff,level,pond" + distances)
+    Log.debug("distances (diff,level,pond" + distances)
 //    val inf = distancesinf.map(tuple => tuple._1).sum
-//    Logger.info("inf" + inf)
+//    Log.info("inf" + inf)
 //    val sup = distancessup.map(tuple => tuple._1).sum
-//    Logger.info("sup" + sup)
+//    Log.info("sup" + sup)
 
 //    TODO eviter les demi tour pour un waiter.... par contre faire la direction sur la somme de la direction?
     (distances,State.level) match {
-      case (head::tail,level) if head._2>level 				=>{	Logger.debug("calculDirection Up" + distances.head._2)    	  																   	
+      case (head::tail,level) if head._2>level 				=>{	Log.debug("calculDirection Up" + distances.head._2)    	  																   	
       																		State.update(Up)   //doors must be closed!
     	  																   }
-      case (head::tail,level) if head._2<level 				=>{ Logger.debug("calculDirection down" + distances.head._2)	  																	
+      case (head::tail,level) if head._2<level 				=>{ Log.debug("calculDirection down" + distances.head._2)	  																	
       																		State.update(Down)
       																	   }
-      case (others,level)									=>{ Logger.error("calculDirection ERROR Last Case Nothing") 
+      case (others,level)									=>{ Log.severe("calculDirection ERROR Last Case Nothing" + Elevator.toString) 
         														State.update(Nothing())
    															 }
     }  
 //    if (inf>sup){
-//      Logger.debug("calculDirection down")
+//      Log.debug("calculDirection down")
 //          State.update(Down)
 //    }
 //    else {
-//      Logger.debug("calculDirection up")
+//      Log.debug("calculDirection up")
 //          State.update(Up)
 //    }
   }
@@ -80,17 +80,17 @@ object State{
   def doPonderation(levels:Map[Int,Int]):List[(Int,Int,Int)]={
     //on filtre les donnees sans ponderation car inutiles pour le calcul... -> evite le bloquage au niveau actuel vide. 
     val etap1= levels.filter(elem => elem._2!=0)
-    Logger.debug("levels without useless levels" + etap1)
+    Log.debug("levels without useless levels" + etap1)
     //On calcul la difference avec le niveau actuel pour la ponderation
     val etap2 = etap1.map (x => (Math.abs(level-x._1),x._1,x._2)).toList
-    Logger.debug("levels with difference" + etap2)
+    Log.debug("levels with difference" + etap2)
     
     //On change la ponderation avec la difference de level
     val etap3= etap2.map(etap => ((etap._1/etap._3),etap._2,etap._3))
-    Logger.debug("levels with difference and pond" + etap3)
+    Log.debug("levels with difference and pond" + etap3)
      //On tri par poids puis par nb de passage, vaut mieux deux mouvement pour 2 personnes que 1 pour 1.
     val etap4= etap3.sortBy(diff => diff._1 -> diff._3)
-    Logger.info("levels with difference and pond and sorted " + etap4)
+    Log.info("levels with difference and pond and sorted " + etap4)
     etap4
   }
 }

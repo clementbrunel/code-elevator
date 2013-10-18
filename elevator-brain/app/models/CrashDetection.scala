@@ -10,8 +10,8 @@ object CrashDetection{
     history.size match {
       case less if less<detectionSeuil 		=> false
       case more if more>detectionSeuil 		=> isLooped(history.tail)
-      case equals if equals>detectionSeuil	=> 	if ((history.head== history.tail.tail) && (history.head!= history.tail.head)){
-    	  											Logger.warn("Cycle detected! ");
+      case equals							=> 	if ((history.head== history.tail.tail) && (history.head!= history.tail.head)){
+    	  											Log.severe("Cycle detected! " + Elevator.toString);
     	  											return true;
       												}
       											else return false;
@@ -22,23 +22,23 @@ object CrashDetection{
     return List(floor)++history.take(detectionSeuil)
   }
   
-  def lastUserExcited{
+  def incrementCounter{
     countAction+=1
   }
-  def reset(){
+  def resetCounter(){
     countAction=0
   }
   def isCrashed():Boolean= {
-       val crashed =  countAction > 2 * (Specs.maxLevel - Specs.minLevel);
+       val crashed =  countAction > 3 * (Specs.maxLevel - Specs.minLevel);
        if (crashed){
-         Logger.warn("Application is Crashed!!! ");
+         Log.warning("Application is Crashed!!! ");
        }
        crashed
     }
   
   def isKO(history:List[Int]):Boolean={
     val isKo = isCrashed || isLooped(history)
-    if (isKo) Mail.send("Application has crashed   Loop : " +isLooped(history) + "Crash" + isCrashed); 
+    if (isKo) Mail.send("Application has crashed   Loop : " +isLooped(history) + " Crash " + isCrashed + Elevator.toString); 
     isKo
   }
   

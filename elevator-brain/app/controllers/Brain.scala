@@ -22,7 +22,7 @@ object Brain  extends Controller {
   def CalcResponse(action:String="")= {
 	    Action {
 	      if (!action.isEmpty()){
-	      Logger.info("Brain Response "+ action)
+	      Log.info("Brain Response "+ action)
 	      }
 		    Elevator.ResetManuAsked match {
 		      case 0 => action match {
@@ -30,9 +30,9 @@ object Brain  extends Controller {
 		        case others =>Ok(action)
 		      }
 		      case 1 => {
-		        Logger.info("*****************resetManuDone*************************" )
+		        Log.info("*****************resetManuDone*************************" )
 		        Elevator.resetAll
-		        Mail.send("Application has reseted ")
+		        Mail.send("Application has manually reseted ")
 		        BadRequest("OopsResetAsked")
 		      }
 		    }
@@ -54,7 +54,7 @@ object Brain  extends Controller {
 				},
 				// Cas de reussite du formulaire
 				success => {
-					Logger.info("resetManu" + message)
+					Log.info("resetManu" + message)
 				    Elevator.resetManuAsked
 				    Redirect(routes.Brain.index())    
 				}
@@ -62,43 +62,45 @@ object Brain  extends Controller {
   }
   
   def call(atFloor:Int, to:String) ={
-    Logger.info("call atfloor" + atFloor + "To"+ to)
+    Log.info("call atfloor" + atFloor + "To"+ to)
     BuildingWaiters.add(atFloor, Waiter(atFloor,Direction.labelToDirection(to)))
-    Logger.debug("call End Waiters " +Elevator.toString) 
+    Log.debug("call End Waiters " +Elevator.toString) 
     CalcResponse()
   }
   
   def go(floorToGo:Int) =  {
-    Logger.info("floorToGo" + floorToGo)
+    Log.info("floorToGo" + floorToGo)
     BuildingClients.add(floorToGo,Client(floorToGo))
-    Logger.debug("go Clients" +Elevator.toString) 
+    Log.debug("go Clients" +Elevator.toString) 
     CalcResponse()
   }
   
   def userHasEntered() =  {
-    Logger.info("userHasEntered")
+    Log.info("userHasEntered")
     BuildingWaiters.minus(State.level)
-    Logger.debug("userHasEntered End" +Elevator.toString) 
+    Log.debug("userHasEntered End" +Elevator.toString) 
     CalcResponse()
   }
   
   def userHasExited() =  {
-    Logger.info("userHasExited")
+    Log.info("userHasExited")
     BuildingClients.minus(State.level)
-    Logger.debug("userHasExited End" + Elevator.toString) 
+    CrashDetection.resetCounter
+    Log.debug("userHasExited End" + Elevator.toString) 
     CalcResponse()
   }
   
   def reset(message:String) =  {
-    Logger.info("reset" + message)
+    Log.info("reset" + message)
     Elevator.resetAll
-    Logger.debug("reset Clients " +Elevator.toString) 
+    Log.debug("reset Clients " +Elevator.toString) 
     CalcResponse()
   }
   
   def nextCommand()={Timer.chrono {
-	    Logger.info("nextCommand")
+	    Log.info("nextCommand")
 	    val action = Elevator.nextCommand
+	    Log.info("nextCommand passed " + Elevator.toString) 
 	    CalcResponse(action.label) 
 	  }
   }

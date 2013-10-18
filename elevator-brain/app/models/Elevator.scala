@@ -15,6 +15,8 @@ object Elevator{
 	BuildingWaiters.reset
 	State.reset
 	resetManuDone
+	CrashDetection.resetCounter
+	history=List();
   	}
   def resetManuDone= {
     ResetManuAsked=0;
@@ -23,8 +25,12 @@ object Elevator{
     ResetManuAsked=1;
     }
   override def toString():String={
-    "ElevatorProblem {"+BuildingClients.toString+"  "+BuildingWaiters.toString+ State.toString + "ResetManuAsked" + ResetManuAsked+"}"
+    "ElevatorProblem {"+BuildingClients.levels.map (level => "Level: "+level._1+" Clients"+level._2.mkString(","))+"\n"+
+    BuildingWaiters.levels.map (level => "Level: "+level._1+" Waiters"+level._2.mkString(","))+"\n"+
+    " State" + State.toString + " ResetManuAsked " + ResetManuAsked+" CrashDetectionCounter " + CrashDetection.countAction+"}"
   }
+//  def 
+  
   
   def nextCommand:Command={
     	val lastAction=State.action
@@ -38,17 +44,17 @@ object Elevator{
 		    val happyClients = BuildingClients.levels.getOrElse(currentLevel, Nil)
 		   (happyClients,happyWaiters,State.door) match {
 		      case(clients,_,Closed()) if clients.size>0=>{
-						        	Logger.debug("OPEN");  
+						        	Log.debug("OPEN");  
 						            State.update(Open)
 		      							}
 		      case(_,waiters,Closed()) if waiters.size>0 =>{
 		      					if (!waiters.filter(waiter => (waiter.asInstanceOf[Waiter].direction.label==State.action.label)).isEmpty || BuildingClients.isEmpty) {
-		    	  				Logger.debug("Enter in Optimisation with direction :" + State.action.label +" BuildingClients.isEmpty " + BuildingClients.isEmpty);  
+		    	  				Log.debug("Enter in Optimisation with direction :" + State.action.label +" BuildingClients.isEmpty " + BuildingClients.isEmpty);  
 	    	  					State.update(Open)
 	//	            			State.update(State.action)
 		      					}
 		      					else{
-		      					  Logger.debug("list of waiter no stop because of direction" + happyWaiters + " vs " +State.action )
+		      					  Log.debug("list of waiter no stop because of direction" + happyWaiters + " vs " +State.action )
 		      					  State.action match {
 		      					    case up:Up if State.level<Specs.minLevel		=> State.update(Up); //pour eviter le blocage initial si appel au niveau zero et etape actuel nothing
 		      					    case down:Down if State.level>Specs.maxLevel	=> State.update(Down)
@@ -60,22 +66,25 @@ object Elevator{
 		      					}
 		      }
 		      case (_,_,Closed()) => {
-		    	  				Logger.debug("Ferme et pas de client ou waiter a satisfaire")
+		    	  				Log.debug("Ferme et pas de client ou waiter a satisfaire")
 	    	  					State.calculDirection()
 		      }
 		      case (_,_,Opened()) => {
 		    	  				//BUG, les users ne rentrent pas si la porte est deja ouverte au bon etage quand ils arrivent
-		    	  				Logger.debug("Doors already opened, Come in but closed then Reopen for Server");  
+		    	  				Log.debug("Doors already opened, Come in but closed then Reopen for Server");  
 	    					    State.update(Close)	        					   
 		        					  }
 		    }
 	    }
     	CrashDetection.add(history, State.level)
+    	CrashDetection.incrementCounter
     	 if (CrashDetection.isKO(history)) {
     	   lastAction match {
     	     //check last direction et
     	      case up:Up if State.level< Specs.maxLevel			=> State.update(Up); //on continue les actions pour eviter le bouclage!
 		      case down:Down if State.level>Specs.minLevel 		=>State.update(Down)
+		      case downElse if State.level>Specs.minLevel 		=>State.update(Down)
+		      case upElse if State.level< Specs.maxLevel		=>State.update(Up)
     	   }
     	 }
     	 else{

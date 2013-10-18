@@ -15,6 +15,6 @@ object Mail {
 //	mail.send(message);
 	//sends both text and html
 //	mail.send( "text", "<html>html</html>");
-	Logger.debug("******************A mail has bee sent********************")
+	Log.debug("******************A mail has bee sent********************")
    }
 }
