@@ -1,5 +1,6 @@
 package models
 import play.Logger
+import tools.Log
 
 
 object CrashDetection{

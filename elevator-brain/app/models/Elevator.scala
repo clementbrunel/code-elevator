@@ -2,6 +2,7 @@ package models
 import play.Logger
 import models._
 import models.DSL._
+import tools.Log
 
 case class Elevator(state:State,waiters:BuildingFile,client:BuildingFile){
 }
@@ -77,7 +78,7 @@ object Elevator{
 		    }
 	    }
     	CrashDetection.add(history, State.level)
-    	CrashDetection.incrementCounter
+    	
     	 if (CrashDetection.isKO(history)) {
     	   lastAction match {
     	     //check last direction et
