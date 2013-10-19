@@ -25,8 +25,8 @@ object Elevator{
     ResetManuAsked=1;
     }
   override def toString():String={
-    "ElevatorProblem {"+BuildingClients.levels.map (level => "Level: "+level._1+" Clients"+level._2.mkString(","))+"\n"+
-    BuildingWaiters.levels.map (level => "Level: "+level._1+" Waiters"+level._2.mkString(","))+"\n"+
+    "ElevatorProblem { Clients :  "+BuildingClients.levels.map (level => "Level: "+level._1+","+level._2.size).mkString("/")+"\n"+
+    " Waiters " + BuildingWaiters.levels.map (level => "Level: "+level._1+level._2.mkString(",",",","")).mkString("/")+"\n"+
     " State" + State.toString + " ResetManuAsked " + ResetManuAsked+" CrashDetectionCounter " + CrashDetection.countAction+"}"
   }
 //  def 
