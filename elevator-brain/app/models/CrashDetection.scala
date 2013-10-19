@@ -1,6 +1,7 @@
 package models
 import play.Logger
 import tools.Log
+import tools.Mail
 
 
 object CrashDetection{

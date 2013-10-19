@@ -1,6 +1,6 @@
 package tools
 import play.Logger
-import models.Mail
+import tools.Mail
 
 object Log{
 	def debug(message:String)=Logger.debug(message)

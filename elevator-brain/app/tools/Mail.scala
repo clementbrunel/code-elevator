@@ -1,8 +1,5 @@
-package models
+package tools
 import com.typesafe.plugin._
-import play.api.Play.current
-import play.Logger
-import tools.Log
 
 object Mail {
    def send(message:String){
