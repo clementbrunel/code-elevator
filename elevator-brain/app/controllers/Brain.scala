@@ -17,8 +17,19 @@ import tools.Mail
 
 object Brain  extends Controller {
   
-   val ResetForm = Form(
+   
+   val FormReset = Form(
+       mapping(
 	    	"cause" -> nonEmptyText
+	    	)(ResetForm.apply)(ResetForm.unapply)
+   )
+   
+   
+   val FormConfig = Form(
+        mapping(
+	    	"EmailSender" 	-> checked,
+	    	"displayLogs"	-> checked
+	    )(ConfigForm.apply)(ConfigForm.unapply)
    )
 	
   def CalcResponse(action:String="")= {
@@ -37,16 +48,32 @@ object Brain  extends Controller {
 		    }
 	    }
   }
+   
+  def config() = Action {implicit request =>
+         FormConfig.bindFromRequest.fold(
+				// Cas d erreurs du formulaire
+				errors => {
+				    Ok(views.html.index("Bad Config",FormReset,errors))
+				},
+				// Cas de reussite du formulaire
+				success => {
+					Log.info("displayLogs" + success.displayLogs + "EmailSender" + success.emailSend)
+					val filledForm = FormConfig.fill(ConfigForm(success.emailSend,success.displayLogs))
+				    Ok(views.html.index("Good Config",FormReset,filledForm))
+				}
+    		)
+  }
+  
   def index() = Action {
     val message = Elevator.ResetManuAsked match {
       case 1 	=> "Reset in Progress"
       case 0 	=> "Application is ready"
     }
-    Ok(views.html.index(message,ResetForm))
+    Ok(views.html.index(message,FormReset,FormConfig))
   }
   
   def resetManu(message:String) = Action {implicit request =>
-    ResetForm.bindFromRequest.fold(
+    FormReset.bindFromRequest.fold(
 				// Cas d erreurs du formulaire
 				errors => {
 				    Redirect(routes.Brain.index())

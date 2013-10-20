@@ -13,3 +13,12 @@ body {
 	min-height:300px;
 	padding:1em;
 }
+
+.control-group {
+margin-bottom: 20px;
+}
+
+.form-actions{
+	background-color:transparent;
+	border-top:0px;
+}

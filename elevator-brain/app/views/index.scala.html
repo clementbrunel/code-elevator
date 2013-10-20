@@ -1,20 +1,39 @@
-@(message: String,addResetForm:Form[String])
+@(message: String,addResetForm:Form[ResetForm],configForm:Form[ConfigForm])
 @import helper._ 
 @main("Welcome to Play") {
 
 	<div class="span6">
-		<p>Elevator Brain is ready</p>
-		<div id="reset">
+		<p>@message</p>
+		<div id="config">
 			@form(routes.Brain.resetManu("Manual Reset")){
 			<div>
-			Reset the application and send an Error to server
-				<span class="pull-right">			
-					<button type="submit" class="btn btn-danger pullright">Reset</button>				
-				</span>
+				<div>
+				Reset the application and send an Error to server
+					<span class="pull-right">			
+						<button type="submit" class="btn btn-danger pull-right">Reset</button>				
+					</span>
+				</div>
+			@inputText(addResetForm("cause"),'_label -> "Cause*", 'class -> "span12", '_showErrors -> true)
 			</div>
-			@inputText(addResetForm("cause"),'_label -> "Cause*", 'class -> "span12", '_showErrors -> true)			
 			}
-			@message
+			<br>
+			@form(action =routes.Brain.config()){
+			<div class="control-group">
+				<span>Email Sender on Log severe</span>
+				<div class="make-switch pull-right">
+	    			<input name="emailSender" id="emailSender" type="checkbox" checked>
+				</div>	
+			</div>	
+			<div class="control-group">
+				<span>Display Logs</span>
+				<div class="make-switch pull-right">
+	    			<input name="displayLogs" id="displayLogs" type="checkbox" checked>
+				</div>	
+			</div>		
+			<div class="form-actions">
+  				<button type="submit" class="btn btn-primary">Save changes</button>
+			</div>		
+			}	
 		</div>	
 	</div>
 	<div class="span6">
