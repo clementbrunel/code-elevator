@@ -11,6 +11,8 @@ case class Elevator(state:State,waiters:BuildingFile,client:BuildingFile){
 object Elevator{
   var ResetManuAsked = 0;
   var history:List[Int]=List();
+  
+  
   def resetAll= {  
     BuildingClients.reset
 	BuildingWaiters.reset
@@ -26,13 +28,12 @@ object Elevator{
     ResetManuAsked=1;
     }
   override def toString():String={
-    "ElevatorProblem { Clients :  "+BuildingClients.levels.map (level => "Level: "+level._1+","+level._2.size).mkString("/")+"\n"+
+    " ElevatorProblem { Clients :  "+BuildingClients.levels.map (level => "Level: "+level._1+","+level._2.size).mkString("/")+"\n"+
     " Waiters " + BuildingWaiters.levels.map (level => "Level: "+level._1+level._2.mkString(",",",","")).mkString("/")+"\n"+
-    " State" + State.toString + " ResetManuAsked " + ResetManuAsked+" CrashDetectionCounter " + CrashDetection.countAction+"}"
+    " State" + State.toString + " ResetManuAsked " + ResetManuAsked+" CrashDetectionCounter " + CrashDetection.countAction+"\n"+
+    " History" +history.mkString(",")+"}"
   }
-//  def 
-  
-  
+
   def nextCommand:Command={
     	val lastAction=State.action
     	val nextCommand =  
@@ -57,31 +58,28 @@ object Elevator{
 		      					else{
 		      					  Log.debug("list of waiter no stop because of direction" + happyWaiters + " vs " +State.action )
 		      					  State.action match {
-		      					    case up:Up if State.level<Specs.minLevel		=> State.update(Up); //pour eviter le blocage initial si appel au niveau zero et etape actuel nothing
-		      					    case down:Down if State.level>Specs.maxLevel	=> State.update(Down)
-		      					    case others => State.door match {
-		      					     	case opened:Opened => State.update(Nothing)
-		      					     	case closed:Closed => State.update(Open)
-		      					        }
+		      					    case up:Up if State.level<Specs.maxLevel		=> State.update(Up); //pour eviter le blocage initial si appel au niveau zero et etape actuel nothing
+		      					    case down:Down if State.level>Specs.minLevel	=> State.update(Down)
+		      					    case others => State.update(Open)	   
 		      					    }
 		      					}
 		      }
-		      case (_,_,Closed()) => {
-		    	  				Log.debug("Ferme et pas de client ou waiter a satisfaire")
-	    	  					State.calculDirection()
-		      }
+		  
 		      case (_,_,Opened()) => {
 		    	  				//BUG, les users ne rentrent pas si la porte est deja ouverte au bon etage quand ils arrivent
 		    	  				Log.debug("Doors already opened, Come in but closed then Reopen for Server");  
 	    					    State.update(Close)	        					   
 		        					  }
+		      case (_,_,Closed()) => {
+		    	  				Log.debug("Ferme et pas de client ou waiter a satisfaire")
+	    	  					State.calculDirection()
+		      }
 		    }
 	    }
-    	CrashDetection.add(history, State.level)
-    	
+    	history=CrashDetection.add(history, State.level)
+    	CrashDetection.incrementCounter
     	 if (CrashDetection.isKO(history)) {
     	   lastAction match {
-    	     //check last direction et
     	      case up:Up if State.level< Specs.maxLevel			=> State.update(Up); //on continue les actions pour eviter le bouclage!
 		      case down:Down if State.level>Specs.minLevel 		=>State.update(Down)
 		      case downElse if State.level>Specs.minLevel 		=>State.update(Down)

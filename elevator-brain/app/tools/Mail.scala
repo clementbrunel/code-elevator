@@ -1,5 +1,6 @@
 package tools
 import com.typesafe.plugin._
+import play.api.Play.current
 
 object Mail {
    def send(message:String){

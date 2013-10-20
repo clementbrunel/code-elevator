@@ -26,8 +26,8 @@ object State{
   def update(processAction:Command):Command={processAction match {
     case open:Open => {door=Opened(); Log.debug("Update State open, Open the door")}
     case close:Close => {door=Closed(); Log.debug("Update State close, Close the door")}
-    case up:Up =>  {CrashDetection.incrementCounter;State++; Log.debug("Update State Up, level++")}
-    case down:Down => {CrashDetection.incrementCounter;State--; Log.debug("Update State Down, level--")}
+    case up:Up =>  {State++; Log.debug("Update State Up, level++")}
+    case down:Down => {State--; Log.debug("Update State Down, level--")}
     case nothing:Nothing => Log.debug("Update State Nothing, No changement")
   }
   action=processAction

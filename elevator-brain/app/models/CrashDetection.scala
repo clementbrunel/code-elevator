@@ -13,7 +13,6 @@ object CrashDetection{
       case less if less<detectionSeuil 		=> false
       case more if more>detectionSeuil 		=> isLooped(history.tail)
       case equals							=> 	if ((history.head== history.tail.tail) && (history.head!= history.tail.head)){
-    	  											Log.severe("Cycle detected! " + Elevator.toString);
     	  											return true;
       												}
       											else return false;
@@ -40,7 +39,7 @@ object CrashDetection{
   
   def isKO(history:List[Int]):Boolean={
     val isKo = isCrashed || isLooped(history)
-    if (isKo) Mail.send("Application has crashed   Loop : " +isLooped(history) + " Crash " + isCrashed + Elevator.toString); 
+    if (isKo) Log.severe("Application has crashed   Loop : " +isLooped(history) + " Crash " + isCrashed); 
     isKo
   }
   

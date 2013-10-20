@@ -27,14 +27,11 @@ object Brain  extends Controller {
 	      Log.info("Brain Response "+ action)
 	      }
 		    Elevator.ResetManuAsked match {
-		      case 0 => action match {
-//		        case "" 	=>InternalServerError("Invalid Calculated Response")
-		        case others =>Ok(action)
-		      }
+		      case 0 => Ok(action)
 		      case 1 => {
 		        Log.info("*****************resetManuDone*************************" )
-		        Elevator.resetAll
-		        Mail.send("Application has manually reseted ")
+		         Log.severe("Application has manually reseted ")
+		        Elevator.resetAll	        
 		        BadRequest("OopsResetAsked")
 		      }
 		    }
@@ -94,6 +91,7 @@ object Brain  extends Controller {
   
   def reset(message:String) =  {
     Log.info("reset" + message)
+    Log.severe("Application has automatically reseted :"+ message)
     Elevator.resetAll
     Log.debug("reset Clients " +Elevator.toString) 
     CalcResponse()
