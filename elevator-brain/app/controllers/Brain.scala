@@ -47,6 +47,12 @@ object Brain  extends Controller {
 		        Elevator.resetAll	        
 		        BadRequest("OopsResetAsked")
 		      }
+		      case 2 => {
+		        Log.info("*****************CrashDetected*************************" )
+		         Log.severe("Application has Crased ")
+		        Elevator.resetAll	        
+		        BadRequest("OopsApplicationCrased")
+		      }
 		    }
 	    }
   }
@@ -86,7 +92,7 @@ object Brain  extends Controller {
 				// Cas de reussite du formulaire
 				success => {
 					Log.info("resetManu" + message)
-				    Elevator.resetManuAsked
+				    Elevator.resetManuAsked(1)
 				    Redirect(routes.Brain.index())    
 				}
     		)
@@ -132,9 +138,12 @@ object Brain  extends Controller {
   def nextCommand()={Timer.chrono {
 	    Log.info("nextCommand")
 	    val action = Elevator.nextCommand
+	    if (CrashDetection.isCrashed){
+	    Elevator.resetManuAsked(2) 
+	    }
 	    Log.info("nextCommand passed " + Elevator.toString) 
-	    CalcResponse(action.label) 
-	  }
+	    CalcResponse(action.label)
+  	}
   }
 }
 

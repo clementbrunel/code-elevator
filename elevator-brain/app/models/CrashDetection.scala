@@ -30,7 +30,7 @@ object CrashDetection{
     countAction=0
   }
   def isCrashed():Boolean= {
-       val crashed =  countAction > 3 * (Specs.maxLevel - Specs.minLevel);
+       val crashed =  countAction > 5 * (Specs.maxLevel - Specs.minLevel);
        if (crashed){
          Log.warning("Application is Crashed!!! ");
        }

@@ -24,8 +24,8 @@ object Elevator{
   def resetManuDone= {
     ResetManuAsked=0;
     }
-  def resetManuAsked= {
-    ResetManuAsked=1;
+  def resetManuAsked(command:Int)= {
+    ResetManuAsked=command;
     }
   override def toString():String={
     " ElevatorProblem { Clients :  "+BuildingClients.levels.map (level => "Level: "+level._1+","+level._2.size).mkString("/")+"\n"+
@@ -78,7 +78,7 @@ object Elevator{
 	    }
     	history=CrashDetection.add(history, State.level)
     	CrashDetection.incrementCounter
-    	 if (CrashDetection.isKO(history)) {
+    	 if (CrashDetection.isLooped(history)) {
     	   lastAction match {
     	      case up:Up if State.level< Specs.maxLevel			=> State.update(Up); //on continue les actions pour eviter le bouclage!
 		      case down:Down if State.level>Specs.minLevel 		=>State.update(Down)
