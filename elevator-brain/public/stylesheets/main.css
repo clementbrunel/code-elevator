@@ -22,3 +22,10 @@ margin-bottom: 20px;
 	background-color:transparent;
 	border-top:0px;
 }
+
+.FormConfig label{
+	float:left;
+}
+.FormConfig input{
+	float:right;
+}

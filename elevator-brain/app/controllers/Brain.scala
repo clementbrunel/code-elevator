@@ -11,6 +11,8 @@ import play.api.data._
 import play.api.data.Forms._
 import tools.Log
 import tools.Mail
+import models.ResetForm
+import models.ConfigForm
 
 
 
@@ -27,8 +29,8 @@ object Brain  extends Controller {
    
    val FormConfig = Form(
         mapping(
-	    	"EmailSender" 	-> checked,
-	    	"displayLogs"	-> checked
+	    	"emailSender" 	-> boolean,
+	    	"displayLogs"	-> boolean
 	    )(ConfigForm.apply)(ConfigForm.unapply)
    )
 	
@@ -57,7 +59,9 @@ object Brain  extends Controller {
 				},
 				// Cas de reussite du formulaire
 				success => {
-					Log.info("displayLogs" + success.displayLogs + "EmailSender" + success.emailSend)
+					Log.info("displayLogs " + success.displayLogs + "EmailSender " + success.emailSend)
+					Mail.isActivated=success.emailSend
+					Log.displayLogs=success.displayLogs
 					val filledForm = FormConfig.fill(ConfigForm(success.emailSend,success.displayLogs))
 				    Ok(views.html.index("Good Config",FormReset,filledForm))
 				}
@@ -69,14 +73,15 @@ object Brain  extends Controller {
       case 1 	=> "Reset in Progress"
       case 0 	=> "Application is ready"
     }
-    Ok(views.html.index(message,FormReset,FormConfig))
+    val filledConfigForm = FormConfig.fill(ConfigForm(Mail.isActivated,Log.displayLogs))
+    Ok(views.html.index(message,FormReset,filledConfigForm))
   }
   
   def resetManu(message:String) = Action {implicit request =>
     FormReset.bindFromRequest.fold(
 				// Cas d erreurs du formulaire
 				errors => {
-				    Redirect(routes.Brain.index())
+				    Ok(views.html.index("Bad Reset",errors,FormConfig))
 				},
 				// Cas de reussite du formulaire
 				success => {

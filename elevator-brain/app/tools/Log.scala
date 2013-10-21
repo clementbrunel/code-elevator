@@ -3,6 +3,7 @@ import play.Logger
 import models._
 
 object Log{
+    var displayLogs=true;
 	def debug(message:String)=Logger.debug(message)
 	
 	def severe(message:String)={

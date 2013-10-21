@@ -3,13 +3,15 @@ import com.typesafe.plugin._
 import play.api.Play.current
 
 object Mail {
+   var isActivated=true; 
+   def changeState={isActivated=if (isActivated) false else true}
    def send(message:String){
 	val mail = use[MailerPlugin].email
 	mail.setSubject("[Elevator-Brain] Error");
 	mail.setRecipient("Brain-Elevator <zemize78@randomail.net>");
 	mail.setFrom("Brain-Elevator <noreply@email.com>");
 	//sends html
-	mail.sendHtml("<html>"+message+"</html>" );
+	if (isActivated) mail.sendHtml("<html>"+message+"</html>" );
 	//sends text/text
 //	mail.send(message);
 	//sends both text and html

@@ -1,5 +1,7 @@
 @(message: String,addResetForm:Form[ResetForm],configForm:Form[ConfigForm])
 @import helper._ 
+@import helper.twitterBootstrap._
+
 @main("Welcome to Play") {
 
 	<div class="span6">
@@ -17,23 +19,29 @@
 			</div>
 			}
 			<br>
-			@form(action =routes.Brain.config()){
-			<div class="control-group">
-				<span>Email Sender on Log severe</span>
-				<div class="make-switch pull-right">
-	    			<input name="emailSender" id="emailSender" type="checkbox" checked>
-				</div>	
-			</div>	
-			<div class="control-group">
-				<span>Display Logs</span>
-				<div class="make-switch pull-right">
-	    			<input name="displayLogs" id="displayLogs" type="checkbox" checked>
-				</div>	
+			<div class="FormConfig span9">
+				@form(action =routes.Brain.config(),'class -> "form-horizontal"){
+				@checkbox(configForm("emailSender"),'_label ->"Email Sender on Log severe",
+				'_showErrors -> false,
+				'_showConstraints -> false,
+				'_class -> "control-group") 
+			
+				@checkbox(configForm("displayLogs"),'_label ->"Display Logs",
+				'_showErrors -> false,
+				'_showConstraints -> false,
+				'_class -> "control-group")
+				<div class="form-actions">
+	  				<button type="submit" class="btn btn-primary">Save changes</button>
+				</div>
+				}
 			</div>		
-			<div class="form-actions">
-  				<button type="submit" class="btn btn-primary">Save changes</button>
-			</div>		
-			}	
+			@if(configForm.hasGlobalErrors) {
+    		<ul>
+    			@configForm.globalErrors.foreach { error =>
+        		<li>error.message</li>
+    			}
+    		</ul>
+			}		
 		</div>	
 	</div>
 	<div class="span6">
