@@ -15,10 +15,10 @@
 						<button type="submit" class="btn btn-danger pull-right">Reset</button>				
 					</span>
 				</div>
-			@inputText(addResetForm("cause"),'_label -> "Cause*", 'class -> "span12", '_showErrors -> true)
+			@inputText(addResetForm("cause"),'_label -> "Cause*", 'class -> "span12", '_showErrors -> true,'_showConstraints -> false)
 			</div>
 			}
-			<br>
+			
 			<div class="FormConfig span9">
 				@form(action =routes.Brain.config(),'class -> "form-horizontal"){
 				@checkbox(configForm("emailSender"),'_label ->"Email Sender on Log severe",

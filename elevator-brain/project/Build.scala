@@ -15,7 +15,9 @@ object ApplicationBuild extends Build {
 //    "securesocial" %% "securesocial" % "master-SNAPSHOT",
     jdbc,
     "com.typesafe" %% "play-plugins-mailer" % "2.2.0",
-     "com.googlecode.usc" % "jdbcdslog" % "1.0.6.2"
+    "com.googlecode.usc" % "jdbcdslog" % "1.0.6.2",
+    "org.scalatest" % "scalatest_2.10" % "1.9.2" % "test",
+    "junit" % "junit" % "4.10" % "test"
   )
   
 

@@ -12,7 +12,7 @@ object CrashDetection{
     history.size match {
       case less if less<detectionSeuil 		=> false
       case more if more>detectionSeuil 		=> isLooped(history.tail)
-      case equals							=> 	if ((history.head== history.tail.tail) && (history.head!= history.tail.head)){
+      case equals							=> 	if ((history.head== history.tail.tail.head) && (history.head!= history.tail.head)){
     	  											return true;
       												}
       											else return false;
