@@ -13,6 +13,7 @@ import tools.Log
 import tools.Mail
 import models.ResetForm
 import models.ConfigForm
+import tools.LogLevel
 
 
 
@@ -30,7 +31,8 @@ object Brain  extends Controller {
    val FormConfig = Form(
         mapping(
 	    	"emailSender" 	-> boolean,
-	    	"displayLogs"	-> boolean
+	    	"displayLogs"	-> boolean,
+	    	"levelLogs"	-> number
 	    )(ConfigForm.apply)(ConfigForm.unapply)
    )
 	
@@ -61,15 +63,16 @@ object Brain  extends Controller {
          FormConfig.bindFromRequest.fold(
 				// Cas d erreurs du formulaire
 				errors => {
-				    Ok(views.html.index("Bad Config",FormReset,errors))
+				    Ok(views.html.index("Bad Config",FormReset,errors,LogLevel.ListLevel))
 				},
 				// Cas de reussite du formulaire
 				success => {
-					Log.info("displayLogs " + success.displayLogs + "EmailSender " + success.emailSend)
+					Log.info("displayLogs " + success.displayLogs + "EmailSender " + success.emailSend + " LogsLevel " + success.levelLogs)
 					Mail.isActivated=success.emailSend
 					Log.displayLogs=success.displayLogs
-					val filledForm = FormConfig.fill(ConfigForm(success.emailSend,success.displayLogs))
-				    Ok(views.html.index("Good Config",FormReset,filledForm))
+					Log.displayLevel=success.levelLogs
+					val filledForm = FormConfig.fill(ConfigForm(success.emailSend,success.displayLogs,success.levelLogs))
+				    Ok(views.html.index("Good Config",FormReset,filledForm,LogLevel.ListLevel))
 				}
     		)
   }
@@ -79,15 +82,15 @@ object Brain  extends Controller {
       case 1 	=> "Reset in Progress"
       case 0 	=> "Application is ready"
     }
-    val filledConfigForm = FormConfig.fill(ConfigForm(Mail.isActivated,Log.displayLogs))
-    Ok(views.html.index(message,FormReset,filledConfigForm))
+    val filledConfigForm = FormConfig.fill(ConfigForm(Mail.isActivated,Log.displayLogs,Log.displayLevel))
+    Ok(views.html.index(message,FormReset,filledConfigForm,LogLevel.ListLevel))
   }
   
   def resetManu(message:String) = Action {implicit request =>
     FormReset.bindFromRequest.fold(
 				// Cas d erreurs du formulaire
 				errors => {
-				    Ok(views.html.index("Bad Reset",errors,FormConfig))
+				    Ok(views.html.index("Bad Reset",errors,FormConfig,LogLevel.ListLevel))
 				},
 				// Cas de reussite du formulaire
 				success => {
@@ -115,7 +118,7 @@ object Brain  extends Controller {
   def userHasEntered() =  {
     Log.info("userHasEntered")
     BuildingWaiters.minus(State.level)
-    Log.debug("userHasEntered End" +Elevator.toString) 
+//    Log.debug("userHasEntered End" +Elevator.toString) 
     CalcResponse()
   }
   
@@ -123,7 +126,7 @@ object Brain  extends Controller {
     Log.info("userHasExited")
     BuildingClients.minus(State.level)
     CrashDetection.resetCounter
-    Log.debug("userHasExited End" + Elevator.toString) 
+//    Log.debug("userHasExited End" + Elevator.toString) 
     CalcResponse()
   }
   

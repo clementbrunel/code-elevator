@@ -26,6 +26,6 @@ margin-bottom: 20px;
 .FormConfig label{
 	float:left;
 }
-.FormConfig input{
+.FormConfig input,.FormConfig select{
 	float:right;
 }

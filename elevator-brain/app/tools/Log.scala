@@ -4,14 +4,46 @@ import models._
 
 object Log{
     var displayLogs=true;
-	def debug(message:String)=Logger.debug(message)
+    var displayLevel=1;
+    
+    def display(level:LogLevel,message:String)=if (displayLogs) level match {
+      case lev1:Debug if lev1.priority>=displayLevel =>Logger.debug(message)
+      case lev2:Info if lev2.priority>=displayLevel =>Logger.info(message)
+      case lev3:Warning if lev3.priority>=displayLevel =>Logger.warn(message)
+      case lev4:Severe if lev4.priority>=displayLevel =>Logger.error(message)
+      case _	=> ()
+    }
+    
+	def debug(message:String)=display(Debug(),message)
+	
+	def info(message:String)=display(Info(),message)
+	
+	
+	def warning(message:String)=display(Warning(),message)
 	
 	def severe(message:String)={
 			Mail.send(message + Elevator.toString)
-			Logger.error(message)
-	}
-	
-	def info(message:String)=Logger.info(message)
-	  
-	def warning(message:String)=Logger.warn(message)
+			display(Severe(),message)
+	}	
+}
+
+trait LogLevel {
+  def display:(String, String)
+}
+
+case class Debug(name:String="Debug",priority:Int=1) extends LogLevel{
+  def display()=(priority.toString -> name)
+}
+case class Info(name:String="Info",priority:Int=2) extends LogLevel{
+  def display()=(priority.toString -> name)
+}
+case class Warning(name:String="Warning",priority:Int=3) extends LogLevel{
+  def display()=(priority.toString -> name)
+}
+case class Severe(name:String="Severe",priority:Int=4) extends LogLevel{
+  def display()=(priority.toString -> name)
+}
+
+object LogLevel{
+  def ListLevel:Seq[(String, String)]=List(Debug().display,Info().display,Warning().display,Severe().display)
 }

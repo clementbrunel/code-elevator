@@ -1,4 +1,4 @@
-@(message: String,addResetForm:Form[ResetForm],configForm:Form[ConfigForm])
+@(message: String,addResetForm:Form[ResetForm],configForm:Form[ConfigForm],logLevels:Seq[(String, String)])
 @import helper._ 
 @import helper.twitterBootstrap._
 
@@ -30,6 +30,13 @@
 				'_showErrors -> false,
 				'_showConstraints -> false,
 				'_class -> "control-group")
+				
+				@select(configForm("levelLogs"),options=logLevels,
+				'_label ->"Log Level",
+				'_showErrors -> false,
+				'_showConstraints -> false,
+				'_class -> "control-group"
+				)
 				<div class="form-actions">
 	  				<button type="submit" class="btn btn-primary">Save changes</button>
 				</div>

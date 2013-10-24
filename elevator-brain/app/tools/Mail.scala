@@ -3,7 +3,7 @@ import com.typesafe.plugin._
 import play.api.Play.current
 
 object Mail {
-   var isActivated=true; 
+   var isActivated=false; 
    def changeState={isActivated=if (isActivated) false else true}
    def send(message:String){
 	val mail = use[MailerPlugin].email
