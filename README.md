@@ -33,3 +33,7 @@ Just push on git for deploy
 See logs with
 $ heroku run console
 File.open('log/production.log', 'r').each_line { |line| puts line }
+
+
+-- Serveur
+See https://github.com/xebia-france/code-elevator for serveur
