@@ -17,6 +17,7 @@ object BuildingFile{
 	def subPerson(level:Int,building:Map[Int,List[Person]])=building.updated(level, building.apply(level) match {case head::tail => tail; case others => Nil})
 	
 }
+
 object BuildingWaiters{
 	var initialTowerWaiters=BuildingFile.initialState
 	var levels=initialTowerWaiters.floors
@@ -26,7 +27,7 @@ object BuildingWaiters{
 	def minus(level:Int)=levels=BuildingFile.subPerson(level,levels)
 	override def toString():String="BuildingWaiters" + levels.mkString(",")
 }
-//case class BuildingClients(clients:List[Client])
+
 object BuildingClients{
 	var initialTowerClients=BuildingFile.initialState
 	var levels=initialTowerClients.floors
@@ -41,6 +42,5 @@ object BuildingClients{
 object Specs{
   val minLevel=0
   val maxLevel=5
-  
   val detectionSeuil=3
 }

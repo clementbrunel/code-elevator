@@ -33,7 +33,17 @@ object Elevator{
     " State" + State.toString + " ResetManuAsked " + ResetManuAsked+" CrashDetectionCounter " + CrashDetection.countAction+"\n"+
     " History" +history.mkString(",")+"}"
   }
-
+  
+  
+  def addWaiterOrNot(atFloor:Int,waiter:Waiter)={
+    if (atFloor==State.level && State.door==Opened()){
+    	Log.warning("Waiter not added because of currentState")
+    }
+    else{
+    	BuildingWaiters.add(atFloor, waiter)   
+    }
+  }
+  
   def nextCommand:Command={
     	val lastAction=State.action
     	val nextCommand =  
@@ -67,7 +77,7 @@ object Elevator{
 		  
 		      case (_,_,Opened()) => {
 		    	  				//BUG, les users ne rentrent pas si la porte est deja ouverte au bon etage quand ils arrivent
-		    	  				Log.debug("Doors already opened, Come in but closed then Reopen for Server");  
+		    	  				Log.debug("Doors already opened, Come in but so do Nothing");  
 	    					    State.update(Close)	        					   
 		        					  }
 		      case (_,_,Closed()) => {

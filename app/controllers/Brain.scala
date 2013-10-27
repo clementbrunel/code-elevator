@@ -103,7 +103,8 @@ object Brain  extends Controller {
   
   def call(atFloor:Int, to:String) ={
     Log.info("call atfloor" + atFloor + "To"+ to)
-    BuildingWaiters.add(atFloor, Waiter(atFloor,Direction.labelToDirection(to)))
+//TODO Verifier si la modif annule le bug avec l arrive d un waiter au bon level
+    Elevator.addWaiterOrNot(atFloor, Waiter(atFloor,Direction.labelToDirection(to)))
     Log.debug("call End Waiters " +Elevator.toString) 
     CalcResponse()
   }
