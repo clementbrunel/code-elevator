@@ -32,7 +32,11 @@ object Brain  extends Controller {
         mapping(
 	    	"emailSender" 	-> boolean,
 	    	"displayLogs"	-> boolean,
-	    	"levelLogs"	-> number
+	    	"levelLogs"	-> number,
+	    	"algo"	-> nonEmptyText,
+	    	"pondclient" -> number,
+	    	"pondwaiter" -> number,
+	    	"maxlevel" -> number
 	    )(ConfigForm.apply)(ConfigForm.unapply)
    )
 	
@@ -51,7 +55,7 @@ object Brain  extends Controller {
 		      }
 		      case 2 => {
 		        Log.info("*****************CrashDetected*************************" )
-		         Log.severe("Application has Crased ")
+		         Log.severe("Application has Crashed ")
 		        Elevator.resetAll	        
 		        BadRequest("OopsApplicationCrased")
 		      }
@@ -63,16 +67,23 @@ object Brain  extends Controller {
          FormConfig.bindFromRequest.fold(
 				// Cas d erreurs du formulaire
 				errors => {
-				    Ok(views.html.index("Bad Config",FormReset,errors,LogLevel.ListLevel))
+				    Ok(views.html.index("Bad Config",FormReset,errors,LogLevel.ListLevel,Algo.ListAlgo))
 				},
 				// Cas de reussite du formulaire
 				success => {
-					Log.info("displayLogs " + success.displayLogs + "EmailSender " + success.emailSend + " LogsLevel " + success.levelLogs)
+					Log.info("displayLogs " + success.displayLogs + "EmailSender " + success.emailSend + " LogsLevel " + success.levelLogs+" Algo : "+success.algo 
+					    +"\n PondClient : "+ success.pondclient +" PondWaiter : "+ success.pondwaiter +" MaxLevel : " +success.maxLevel)
+					    
 					Mail.isActivated=success.emailSend
 					Log.displayLogs=success.displayLogs
 					Log.displayLevel=success.levelLogs
-					val filledForm = FormConfig.fill(ConfigForm(success.emailSend,success.displayLogs,success.levelLogs))
-				    Ok(views.html.index("Good Config",FormReset,filledForm,LogLevel.ListLevel))
+					Algo.changeAlgo(success.algo)
+					Specs.clientPond=success.pondclient
+					Specs.waiterPond=success.pondwaiter
+					Specs.maxLevel=success.maxLevel
+					val filledForm = FormConfig.fill(ConfigForm(success.emailSend,success.displayLogs,success.levelLogs,success.algo,
+					    Specs.clientPond,Specs.waiterPond,Specs.maxLevel))
+				    Ok(views.html.index("Good Config",FormReset,filledForm,LogLevel.ListLevel,Algo.ListAlgo))
 				}
     		)
   }
@@ -82,15 +93,16 @@ object Brain  extends Controller {
       case 1 	=> "Reset in Progress"
       case 0 	=> "Application is ready"
     }
-    val filledConfigForm = FormConfig.fill(ConfigForm(Mail.isActivated,Log.displayLogs,Log.displayLevel))
-    Ok(views.html.index(message,FormReset,filledConfigForm,LogLevel.ListLevel))
+    val filledConfigForm = FormConfig.fill(ConfigForm(Mail.isActivated,Log.displayLogs,Log.displayLevel,Algo.currentAlgo.name,
+        Specs.clientPond,Specs.waiterPond,Specs.maxLevel))
+    Ok(views.html.index(message,FormReset,filledConfigForm,LogLevel.ListLevel,Algo.ListAlgo))
   }
   
   def resetManu(message:String) = Action {implicit request =>
     FormReset.bindFromRequest.fold(
 				// Cas d erreurs du formulaire
 				errors => {
-				    Ok(views.html.index("Bad Reset",errors,FormConfig,LogLevel.ListLevel))
+				    Ok(views.html.index("Bad Reset",errors,FormConfig,LogLevel.ListLevel,Algo.ListAlgo))
 				},
 				// Cas de reussite du formulaire
 				success => {
@@ -103,7 +115,7 @@ object Brain  extends Controller {
   
   def call(atFloor:Int, to:String) ={
     Log.info("call atfloor" + atFloor + "To"+ to)
-//TODO Verifier si la modif annule le bug avec l arrive d un waiter au bon level
+//Verifier si la modif annule le bug avec l arrive d un waiter au bon level -> OK
     Elevator.addWaiterOrNot(atFloor, Waiter(atFloor,Direction.labelToDirection(to)))
     Log.debug("call End Waiters " +Elevator.toString) 
     CalcResponse()
@@ -143,7 +155,7 @@ object Brain  extends Controller {
 	    Log.info("nextCommand")
 	    val action = Elevator.nextCommand
 	    if (CrashDetection.isCrashed){
-	    Elevator.resetManuAsked(2) 
+	    	Elevator.resetManuAsked(2) 
 	    }
 	    Log.info("nextCommand passed " + Elevator.toString) 
 	    CalcResponse(action.label)

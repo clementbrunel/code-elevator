@@ -52,8 +52,8 @@ object State{
   }
   
   def calculDirection():Command={
-    val countToTop= 2 * countGoTo(UpDirection()) + countCallFrom(UpDirection());
-    val countToDown= 2 * countGoTo(DownDirection()) + countCallFrom(DownDirection());
+    val countToTop= Specs.clientPond * countGoTo(UpDirection()) + Specs.waiterPond * countCallFrom(UpDirection());
+    val countToDown= Specs.clientPond * countGoTo(DownDirection()) + Specs.waiterPond * countCallFrom(DownDirection());
     Log.info("countToTop" +countToTop + "countToDown" +countToDown)
     if (countToTop > countToDown) {
             State.update(Up)

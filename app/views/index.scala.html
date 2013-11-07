@@ -1,4 +1,4 @@
-@(message: String,addResetForm:Form[ResetForm],configForm:Form[ConfigForm],logLevels:Seq[(String, String)])
+@(message: String,addResetForm:Form[ResetForm],configForm:Form[ConfigForm],logLevels:Seq[(String, String)],algos:Seq[(String, String)])
 @import helper._ 
 @import helper.twitterBootstrap._
 
@@ -37,6 +37,20 @@
 				'_showConstraints -> false,
 				'_class -> "control-group"
 				)
+				
+				@select(configForm("algo"),options=algos,
+				'_label ->"Select Current algorithm",
+				'_showErrors -> false,
+				'_showConstraints -> false,
+				'_class -> "control-group"
+				)
+				
+				@inputText(configForm("pondclient"),'_label -> "Client ponderation", 'class -> "control-group", '_showErrors -> true,'_showConstraints -> false)
+				
+				@inputText(configForm("pondwaiter"),'_label -> "Waiter ponderation", 'class -> "control-group", '_showErrors -> true,'_showConstraints -> false)
+				
+				@inputText(configForm("maxlevel"),'_label -> "Level Max", 'class -> "control-group", '_showErrors -> true,'_showConstraints -> false)
+				
 				<div class="form-actions">
 	  				<button type="submit" class="btn btn-primary">Save changes</button>
 				</div>

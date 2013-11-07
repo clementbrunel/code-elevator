@@ -11,11 +11,14 @@ object Mail {
 	mail.setRecipient("Brain-Elevator <zemize78@randomail.net>");
 	mail.setFrom("Brain-Elevator <noreply@email.com>");
 	//sends html
-	if (isActivated) mail.sendHtml("<html>"+message+"</html>" );
+	if (isActivated) {
+	  mail.sendHtml("<html>"+message+"</html>" );
+	  Log.debug("******************A mail has bee sent********************")
+	}
 	//sends text/text
 //	mail.send(message);
 	//sends both text and html
 //	mail.send( "text", "<html>html</html>");
-	Log.debug("******************A mail has bee sent********************")
+	
    }
 }
