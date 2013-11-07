@@ -35,6 +35,7 @@ case class SmallTower(name:String="SmallTower") extends Algo{
 	       State.update(Nothing)
 	    }
 	    else { 
+	    	CrashDetection.incrementCounter
 		    val currentLevel=State.level
 		    val happyWaiters= BuildingWaiters.levels.getOrElse(currentLevel, Nil)
 		    val happyClients = BuildingClients.levels.getOrElse(currentLevel, Nil)
@@ -54,7 +55,7 @@ case class SmallTower(name:String="SmallTower") extends Algo{
 		      					  State.action match {
 		      					    case up:Up if State.level<Specs.maxLevel		=> State.update(Up); //pour eviter le blocage initial si appel au niveau zero et etape actuel nothing
 		      					    case down:Down if State.level>Specs.minLevel	=> State.update(Down)
-		      					    case others => State.update(Open)	   
+		      					    case others => State.calculDirection()  
 		      					    }
 		      					}
 		      }

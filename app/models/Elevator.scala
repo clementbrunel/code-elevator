@@ -50,7 +50,7 @@ object Elevator{
     	val nextCommand =  Algo.currentAlgo.nextCommand
     	
     	history=CrashDetection.add(history, State.level)
-    	CrashDetection.incrementCounter
+    	
     	 if (CrashDetection.isLooped(history)) {
     	   lastAction match {
     	      case up:Up if State.level< Specs.maxLevel			=> State.update(Up); //on continue les actions pour eviter le bouclage!
