@@ -32,29 +32,30 @@ case class SmallTower(name:String="SmallTower") extends Algo{
   
   override def nextCommand={
     	if (BuildingWaiters.isEmpty && BuildingClients.isEmpty){
-	       State.update(Nothing)
+	       Nothing
 	    }
 	    else { 
 	    	CrashDetection.incrementCounter
 		    val currentLevel=State.level
 		    val happyWaiters= BuildingWaiters.levels.getOrElse(currentLevel, Nil)
 		    val happyClients = BuildingClients.levels.getOrElse(currentLevel, Nil)
+		   Log.info("BuildingClients.size" + BuildingClients.size)
 		   (happyClients,happyWaiters,State.door) match {
 		      case(clients,_,Closed()) if clients.size>0=>{
 						        	Log.debug("OPEN");  
-						            State.update(Open)
+						            Open
 		      							}
-		      case(_,waiters,Closed()) if waiters.size>0 =>{
-		      					if (!waiters.filter(waiter => (waiter.asInstanceOf[Waiter].direction.label==State.action.label)).isEmpty || BuildingClients.isEmpty) {
+		      case(_,waiters,Closed()) if waiters.size>0 && BuildingClients.size<Specs.bestCapacity =>{
+		      					if (!waiters.filter(waiter => (waiter.asInstanceOf[Waiter].direction.label==State.action.label)).isEmpty || BuildingClients.isEmpty
+		      					    ||State.level==Specs.minLevel ||State.level==Specs.maxLevel) {
 		    	  				Log.debug("Enter in Optimisation with direction :" + State.action.label +" BuildingClients.isEmpty " + BuildingClients.isEmpty);  
-	    	  					State.update(Open)
-	//	            			State.update(State.action)
+	    	  					Open
 		      					}
 		      					else{
 		      					  Log.debug("list of waiter no stop because of direction" + happyWaiters + " vs " +State.action )
 		      					  State.action match {
-		      					    case up:Up if State.level<Specs.maxLevel		=> State.update(Up); //pour eviter le blocage initial si appel au niveau zero et etape actuel nothing
-		      					    case down:Down if State.level>Specs.minLevel	=> State.update(Down)
+		      					    case up:Up if State.level<Specs.maxLevel		=> Up //pour eviter le blocage initial si appel au niveau zero et etape actuel nothing
+		      					    case down:Down if State.level>Specs.minLevel	=> Down
 		      					    case others => State.calculDirection()  
 		      					    }
 		      					}
@@ -63,7 +64,7 @@ case class SmallTower(name:String="SmallTower") extends Algo{
 		      case (_,_,Opened()) => {
 		    	  				//BUG, les users ne rentrent pas si la porte est deja ouverte au bon etage quand ils arrivent
 		    	  				Log.debug("Doors already opened, Come in but so do Nothing");  
-	    					    State.update(Close)	        					   
+	    					    Close	        					   
 		        					  }
 		      case (_,_,Closed()) => {
 		    	  				Log.debug("Ferme et pas de client ou waiter a satisfaire")

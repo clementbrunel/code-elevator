@@ -4,7 +4,7 @@ import play.api.Play.current
 
 object Mail {
    var isActivated=false; 
-   def changeState={isActivated=if (isActivated) false else true}
+   def changeState={isActivated=(!isActivated) }
    def send(message:String){
 	val mail = use[MailerPlugin].email
 	mail.setSubject("[Elevator-Brain] Error");

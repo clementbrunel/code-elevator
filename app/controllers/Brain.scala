@@ -36,7 +36,8 @@ object Brain  extends Controller {
 	    	"algo"	-> nonEmptyText,
 	    	"pondclient" -> number,
 	    	"pondwaiter" -> number,
-	    	"maxlevel" -> number
+	    	"maxlevel" -> number,
+	    	"bestcapacity" -> number
 	    )(ConfigForm.apply)(ConfigForm.unapply)
    )
 	
@@ -81,8 +82,9 @@ object Brain  extends Controller {
 					Specs.clientPond=success.pondclient
 					Specs.waiterPond=success.pondwaiter
 					Specs.maxLevel=success.maxLevel
+					Specs.bestCapacity=success.bestCapacity
 					val filledForm = FormConfig.fill(ConfigForm(success.emailSend,success.displayLogs,success.levelLogs,success.algo,
-					    Specs.clientPond,Specs.waiterPond,Specs.maxLevel))
+					    Specs.clientPond,Specs.waiterPond,Specs.maxLevel,Specs.bestCapacity))
 				    Ok(views.html.index("Good Config",FormReset,filledForm,LogLevel.ListLevel,Algo.ListAlgo))
 				}
     		)
@@ -94,7 +96,7 @@ object Brain  extends Controller {
       case 0 	=> "Application is ready"
     }
     val filledConfigForm = FormConfig.fill(ConfigForm(Mail.isActivated,Log.displayLogs,Log.displayLevel,Algo.currentAlgo.name,
-        Specs.clientPond,Specs.waiterPond,Specs.maxLevel))
+        Specs.clientPond,Specs.waiterPond,Specs.maxLevel,Specs.bestCapacity))
     Ok(views.html.index(message,FormReset,filledConfigForm,LogLevel.ListLevel,Algo.ListAlgo))
   }
   

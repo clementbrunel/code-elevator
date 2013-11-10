@@ -60,7 +60,7 @@ object Elevator{
     	   }
     	 }
     	 else{
-    	   nextCommand
+    	   State.update(nextCommand)
     	 }   	
   }
 }

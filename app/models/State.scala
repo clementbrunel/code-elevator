@@ -51,21 +51,30 @@ object State{
     }
   }
   
-  def calculDirection():Command={
-    val countToTop= Specs.clientPond * countGoTo(UpDirection()) + Specs.waiterPond * countCallFrom(UpDirection());
-    val countToDown= Specs.clientPond * countGoTo(DownDirection()) + Specs.waiterPond * countCallFrom(DownDirection());
-    Log.info("countToTop" +countToTop + "countToDown" +countToDown)
-    if (countToTop > countToDown) {
-            State.update(Up)
-        } else if (countToTop < countToDown) {
-           State.update(Down);
-        } else if (State.level > Specs.minLevel) {
-            State.update(Down)
-        } else{
-            State.update(Up)
-        }
+  def calculPonderation():(Int,Int)={
+    val tupleCoefs=
+      if(BuildingClients.size<Specs.bestCapacity){
+    (Specs.clientPond * countGoTo(UpDirection()) + Specs.waiterPond * countCallFrom(UpDirection()),
+     Specs.clientPond * countGoTo(DownDirection()) + Specs.waiterPond * countCallFrom(DownDirection()))
+	}
+    else{
+      (Specs.clientPond * countGoTo(UpDirection()),
+       Specs.clientPond * countGoTo(DownDirection()))
+    }
+    
+    Log.info("countToTop" +tupleCoefs._1 + "countToDown" +tupleCoefs._2)
+    tupleCoefs
   }
   
+  def calculDirection():Command={
+   val CoefsTopAndDown=calculPonderation()
+     CoefsTopAndDown match {
+		      case (countToTop,countToDown) if (countToTop > countToDown) =>  Up
+		      case (countToTop,countToDown) if (countToTop < countToDown) =>  Down
+		      case (countToTop,countToDown) if (State.level < Specs.maxLevel) =>  Up
+		      case (_,_)  =>  Down
+		    }
+	}
 }
 
 

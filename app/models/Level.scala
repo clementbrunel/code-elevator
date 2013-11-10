@@ -15,7 +15,7 @@ object BuildingFile{
 	def isEmpty(building:Map[Int,List[Person]]):Boolean=building.filter( map => !map._2.isEmpty).isEmpty	
 	def addPerson(level:Int,person:Person,building:Map[Int,List[Person]])=building.updated(level, building.apply(level).+:(person))	
 	def subPerson(level:Int,building:Map[Int,List[Person]])=building.updated(level, building.apply(level) match {case head::tail => tail; case others => Nil})
-	
+	def size(building:Map[Int,List[Person]]):Int=building.toList.map(level => level._2.size).sum
 }
 
 object BuildingWaiters{
@@ -26,6 +26,7 @@ object BuildingWaiters{
 	def add(level:Int,person:Waiter)=levels=BuildingFile.addPerson(level, person,levels)
 	def minus(level:Int)=levels=BuildingFile.subPerson(level,levels)
 	override def toString():String="BuildingWaiters" + levels.mkString(",")
+	def size():Int=BuildingFile.size(levels)
 }
 
 object BuildingClients{
@@ -36,6 +37,7 @@ object BuildingClients{
 	def add(level:Int,person:Client)=levels=BuildingFile.addPerson(level, person, levels)
 	def minus(level:Int)=levels=BuildingFile.subPerson(level,levels)
 	override def toString():String="BuildingClients" + levels.mkString(",")
+	def size():Int=BuildingFile.size(levels)
 }
 
 
@@ -44,5 +46,7 @@ object Specs{
   var waiterPond=1
   val minLevel=0
   var maxLevel=20
+  var bestCapacity=40
   val detectionSeuil=3
+  
 }
