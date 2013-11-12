@@ -36,8 +36,10 @@ object Brain  extends Controller {
 	    	"algo"	-> nonEmptyText,
 	    	"pondclient" -> number,
 	    	"pondwaiter" -> number,
+	    	"minlevel"-> number,
 	    	"maxlevel" -> number,
-	    	"bestcapacity" -> number
+	    	"bestcapacity" -> number,
+	    	"maxCapacity" -> number
 	    )(ConfigForm.apply)(ConfigForm.unapply)
    )
 	
@@ -81,10 +83,12 @@ object Brain  extends Controller {
 					Algo.changeAlgo(success.algo)
 					Specs.clientPond=success.pondclient
 					Specs.waiterPond=success.pondwaiter
+					Specs.minLevel=success.minLevel
 					Specs.maxLevel=success.maxLevel
 					Specs.bestCapacity=success.bestCapacity
+					Specs.maxCapacity=success.maxCapacity
 					val filledForm = FormConfig.fill(ConfigForm(success.emailSend,success.displayLogs,success.levelLogs,success.algo,
-					    Specs.clientPond,Specs.waiterPond,Specs.maxLevel,Specs.bestCapacity))
+					    Specs.clientPond,Specs.waiterPond,Specs.minLevel,Specs.maxLevel,Specs.bestCapacity,Specs.maxCapacity))
 				    Ok(views.html.index("Good Config",FormReset,filledForm,LogLevel.ListLevel,Algo.ListAlgo))
 				}
     		)
@@ -96,7 +100,7 @@ object Brain  extends Controller {
       case 0 	=> "Application is ready"
     }
     val filledConfigForm = FormConfig.fill(ConfigForm(Mail.isActivated,Log.displayLogs,Log.displayLevel,Algo.currentAlgo.name,
-        Specs.clientPond,Specs.waiterPond,Specs.maxLevel,Specs.bestCapacity))
+        Specs.clientPond,Specs.waiterPond,Specs.minLevel,Specs.maxLevel,Specs.bestCapacity,Specs.maxCapacity))
     Ok(views.html.index(message,FormReset,filledConfigForm,LogLevel.ListLevel,Algo.ListAlgo))
   }
   
@@ -145,14 +149,17 @@ object Brain  extends Controller {
     CalcResponse()
   }
   
-  def reset(message:String) =  {
+  def reset(message:String, lowerFloor:Int, higherFloor:Int, cabinSize:Int) =  {
     Log.info("reset" + message)
-    Log.severe("Application has automatically reseted :"+ message)
+    Log.severe("Application has automatically reseted :"+ message+ " lowerFloor : " +lowerFloor+" higherFloor : " +higherFloor+" cabinSize : " + cabinSize   )
     Elevator.resetAll
+    if (lowerFloor.!=(-1)) {Specs.minLevel=lowerFloor}
+    if (higherFloor.!=(-1)) {Specs.maxLevel=higherFloor}
+    if (cabinSize.!=(-1)) {Specs.maxCapacity=cabinSize}
     Log.debug("reset Clients " +Elevator.toString) 
     CalcResponse()
   }
-  
+    
   def nextCommand()={Timer.chrono {
 	    Log.info("nextCommand")
 	    val action = Elevator.nextCommand

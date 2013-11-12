@@ -3,25 +3,12 @@
 @import helper.twitterBootstrap._
 
 @main("Welcome to Play") {
-
-	<div class="span6">
+	<div class="span12">
 		<p>@message</p>
-		<div id="config">
-			@form(routes.Brain.resetManu("Manual Reset")){
-			<div>
-				<div>
-				Reset the application and send an Error to server
-					<span class="pull-right">			
-						<button type="submit" class="btn btn-danger pull-right">Reset</button>				
-					</span>
-				</div>
-			@inputText(addResetForm("cause"),'_label -> "Cause*", 'class -> "span12", '_showErrors -> true,'_showConstraints -> false)
-			</div>
-			}
-			
-			<div class="FormConfig span9">
-				@form(action =routes.Brain.config(),'class -> "form-horizontal"){
-				@checkbox(configForm("emailSender"),'_label ->"Email Sender on Log severe",
+		<div class="FormConfig">
+		@form(action =routes.Brain.config(),'class -> "form-horizontal"){
+			<div class="span6">
+			@checkbox(configForm("emailSender"),'_label ->"Email Sender on Log severe",
 				'_showErrors -> false,
 				'_showConstraints -> false,
 				'_class -> "control-group") 
@@ -48,25 +35,57 @@
 				@inputText(configForm("pondclient"),'_label -> "Client ponderation", 'class -> "control-group", '_showErrors -> true,'_showConstraints -> false)
 				
 				@inputText(configForm("pondwaiter"),'_label -> "Waiter ponderation", 'class -> "control-group", '_showErrors -> true,'_showConstraints -> false)
+			</div>
+			<div class="span6">
+				@inputText(configForm("minlevel"),'_label -> "Level Min", 'class -> "control-group", '_showErrors -> true,'_showConstraints -> false)
 				
 				@inputText(configForm("maxlevel"),'_label -> "Level Max", 'class -> "control-group", '_showErrors -> true,'_showConstraints -> false)
 				
-				@inputText(configForm("bestcapacity"),'_label -> "Take Waiter limit", 'class -> "control-group", '_showErrors -> true,'_showConstraints -> false)
+				@inputText(configForm("bestcapacity"),'_label -> "Target Capacity", 'class -> "control-group", '_showErrors -> true,'_showConstraints -> false)
 				
+				@inputText(configForm("maxCapacity"),'_label -> "Max Capacity", 'class -> "control-group", '_showErrors -> true,'_showConstraints -> false)
 				<div class="form-actions">
-	  				<button type="submit" class="btn btn-primary">Save changes</button>
+		  				<button type="submit" class="btn btn-primary">Save changes</button>
 				</div>
-				}
-			</div>		
-			@if(configForm.hasGlobalErrors) {
+			</div>
+		
+		}
+		@if(configForm.hasGlobalErrors) {
     		<ul>
     			@configForm.globalErrors.foreach { error =>
         		<li>error.message</li>
     			}
     		</ul>
-			}		
-		</div>	
+		}	
+		</div>
 	</div>
-	<div class="span6">
+	<div class="span11">
+		<div class="span6">
+			<div id="config">
+				@form(routes.Brain.resetManu("Manual Reset")){
+				<div>
+					<div>
+					Reset the application and send an Error to server
+						<span class="pull-right">			
+							<button type="submit" class="btn btn-danger pull-right">Reset</button>				
+						</span>
+					</div>
+				@inputText(addResetForm("cause"),'_label -> "Cause*", 'class -> "span12", '_showErrors -> true,'_showConstraints -> false)
+				</div>
+				}
+				
+		
+				@if(configForm.hasGlobalErrors) {
+	    		<ul>
+	    			@configForm.globalErrors.foreach { error =>
+	        		<li>error.message</li>
+	    			}
+	    		</ul>
+				}		
+			</div>	
+		</div>
+		<div class="span6">
+	
+		</div>
 	</div>
 }
