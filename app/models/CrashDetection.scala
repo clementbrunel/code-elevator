@@ -33,6 +33,7 @@ object CrashDetection{
        val crashed =  countAction > 5 * (Specs.maxLevel - Specs.minLevel);
        if (crashed){
          Log.warning("Application is Crashed!!! ");
+         Elevator.resetManuAsked(2)
        }
        crashed
     }

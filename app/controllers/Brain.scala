@@ -52,15 +52,18 @@ object Brain  extends Controller {
 		      case 0 => Ok(action)
 		      case 1 => {
 		        Log.info("*****************resetManuDone*************************" )
-		         Log.severe("Application has manually reseted ")
-		        Elevator.resetAll	        
+		        Log.severe("Application has manually reseted (resetManuDone)")        
 		        BadRequest("OopsResetAsked")
 		      }
 		      case 2 => {
 		        Log.info("*****************CrashDetected*************************" )
-		         Log.severe("Application has Crashed ")
-		        Elevator.resetAll	        
-		        BadRequest("OopsApplicationCrased")
+		         Log.severe("Application has Crashed (CrashDetected)")        
+		        BadRequest("OopsApplicationCrashed")
+		      }
+		      case 3 => {
+		        Log.info("*****************CrashIsBetter*************************" )
+		         Log.severe("Application has Crashed (CrashIsBetter)")        
+		        BadRequest("OopsApplicationMustCrashed")
 		      }
 		    }
 	    }
@@ -163,8 +166,8 @@ object Brain  extends Controller {
   def nextCommand()={Timer.chrono {
 	    Log.info("nextCommand")
 	    val action = Elevator.nextCommand
-	    if (CrashDetection.isCrashed){
-	    	Elevator.resetManuAsked(2) 
+	    if	(CrashDetection.isCrashed()){
+	      Log.warning("Application is going to restart")
 	    }
 	    Log.info("nextCommand passed " + Elevator.toString) 
 	    CalcResponse(action.label)

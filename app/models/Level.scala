@@ -45,9 +45,9 @@ object Specs{
   var clientPond=2
   var waiterPond=1
   var minLevel=0
-  var maxLevel=20
-  var bestCapacity=20
-  var maxCapacity=30
+  var maxLevel=19
+  var bestCapacity=10
+  var maxCapacity=42
   val detectionSeuil=3
   
 }

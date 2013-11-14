@@ -27,6 +27,9 @@ object Elevator{
   def resetManuAsked(command:Int)= {
     ResetManuAsked=command;
     }
+  def resetManuIsAsked()= {
+    ResetManuAsked!=0;
+    }
   override def toString():String={
     " ElevatorProblem { Clients :  "+BuildingClients.levels.map (level => "Level: "+level._1+","+level._2.size).mkString("/")+"\n"+
     " Waiters " + BuildingWaiters.levels.map (level => "Level: "+level._1+level._2.mkString(",",",","")).mkString("/")+"\n"+
