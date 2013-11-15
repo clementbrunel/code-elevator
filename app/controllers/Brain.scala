@@ -155,10 +155,10 @@ object Brain  extends Controller {
   def reset(message:String, lowerFloor:Int, higherFloor:Int, cabinSize:Int) =  {
     Log.info("reset" + message)
     Log.severe("Application has automatically reseted :"+ message+ " lowerFloor : " +lowerFloor+" higherFloor : " +higherFloor+" cabinSize : " + cabinSize   )
-    Elevator.resetAll
     if (lowerFloor.!=(-1)) {Specs.minLevel=lowerFloor}
     if (higherFloor.!=(-1)) {Specs.maxLevel=higherFloor}
     if (cabinSize.!=(-1)) {Specs.maxCapacity=cabinSize}
+    Elevator.resetAll
     Log.debug("reset Clients " +Elevator.toString) 
     CalcResponse()
   }

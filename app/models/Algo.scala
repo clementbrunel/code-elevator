@@ -25,8 +25,8 @@ case class BigTower(name:String="BigTower") extends Algo{
   override def nextCommand={
     //TODO The improvements for big tower
     val calculatedNextCommand = SmallTower().nextCommand
-    Log.warning("Size Waiters" +BuildingWaiters.size() + "vs "+ Specs.bestCapacity*(Specs.maxLevel- Specs.minLevel))
     if (BuildingWaiters.size()>(Specs.bestCapacity*(Specs.maxLevel- Specs.minLevel))){
+      Log.warning("Size Waiters" +BuildingWaiters.size() + "vs "+ Specs.bestCapacity*(Specs.maxLevel- Specs.minLevel))
       Elevator.resetManuAsked(3)
     }
     calculatedNextCommand
