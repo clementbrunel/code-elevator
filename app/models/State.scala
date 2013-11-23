@@ -54,15 +54,17 @@ object State{
   def calculPonderation():(Int,Int)={
     val tupleCoefs=
       if(BuildingClients.size<Specs.bestCapacity){
+        CrashDetection.addHelp("Waiters are in calcul")
     (Specs.clientPond * countGoTo(UpDirection()) + Specs.waiterPond * countCallFrom(UpDirection()),
      Specs.clientPond * countGoTo(DownDirection()) + Specs.waiterPond * countCallFrom(DownDirection()))
 	}
     else{
+       CrashDetection.addHelp("Waiters are NOT in calcul")
       (Specs.clientPond * countGoTo(UpDirection()),
        Specs.clientPond * countGoTo(DownDirection()))
     }
-    
-    Log.info("countToTop" +tupleCoefs._1 + "countToDown" +tupleCoefs._2)
+    CrashDetection.addHelp("countToTop" +tupleCoefs._1 + "countToDown" +tupleCoefs._2)
+    Log.debug("countToTop" +tupleCoefs._1 + "countToDown" +tupleCoefs._2)
     tupleCoefs
   }
   

@@ -1,7 +1,7 @@
 package tools
 import com.typesafe.plugin._
 import play.api.Play.current
-
+import models.CrashDetection
 object Mail {
    var isActivated=false; 
    def changeState={isActivated=(!isActivated) }
@@ -12,7 +12,9 @@ object Mail {
 	mail.setFrom("Brain-Elevator <noreply@email.com>");
 	//sends html
 	if (isActivated) {
-	  mail.sendHtml("<html>"+message+"</html>" );
+	  mail.sendHtml("<html>"+message+"\n<br>"
+	      +"HelpDebug computation : " + CrashDetection.getHelpAndReset()
+	      +"</html>" );
 	  Log.debug("******************A mail has bee sent********************")
 	}
 	//sends text/text

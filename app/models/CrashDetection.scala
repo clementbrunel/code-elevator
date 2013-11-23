@@ -7,6 +7,7 @@ import tools.Mail
 object CrashDetection{
   val detectionSeuil=Specs.detectionSeuil
   var countAction=0;
+  var helDebug = ""
   
   def isLooped(history:List[Int]):Boolean={
     history.size match {
@@ -19,10 +20,15 @@ object CrashDetection{
     }
   }
   
-  def add(floor:Int,history:List[Int]):List[Int]={
-    return List(floor)++history.take(detectionSeuil)
-  }
+  def addHelp(add:String)=helDebug+=add+"\n"
   
+  def resetHelp()=helDebug=""
+  
+  def getHelpAndReset():String={
+    val message= helDebug
+    resetHelp()
+    message
+  }  
   def incrementCounter{
     countAction+=1
   }

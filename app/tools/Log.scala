@@ -9,7 +9,7 @@ object Log{
     var displayLogs=true;
     var displayLevel=1;
     
-    def display(level:LogLevel,message:String)={
+    private def display(level:LogLevel,message:String)={
       val prefix=level.name+" "+curTimeFormat.format(Calendar.getInstance.getTime)+" "
     if (displayLogs) level match {
       case lev1:Debug if lev1.priority>=displayLevel =>Logger.debug(prefix+message)

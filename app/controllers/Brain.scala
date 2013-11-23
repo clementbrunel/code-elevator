@@ -165,11 +165,13 @@ object Brain  extends Controller {
     
   def nextCommand()={Timer.chrono {
 	    Log.info("nextCommand")
+	    CrashDetection.resetHelp
 	    val action = Elevator.nextCommand
 	    if	(CrashDetection.isCrashed()){
 	      Log.warning("Application is going to restart")
 	    }
-	    Log.info("nextCommand passed " + Elevator.toString) 
+	    Log.debug("nextCommand passed " + Elevator.toString) 
+	    Log.info("nextCommand Response " + action.label) 
 	    CalcResponse(action.label)
   	}
   }

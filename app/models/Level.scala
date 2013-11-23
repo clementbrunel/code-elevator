@@ -46,10 +46,10 @@ object BuildingClients{
 object Specs{
   var clientPond=2
   var waiterPond=1
-  var minLevel=0
-  var maxLevel=19
+  var minLevel=(-13)
+  var maxLevel=27 
   var bestCapacity=10
-  var maxCapacity=42
+  var maxCapacity=60
   val detectionSeuil=3
   
 }
