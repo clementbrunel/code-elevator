@@ -35,7 +35,7 @@ object State{
   }
   
   def computeDistanceTo(toFloor:Int):Int= {
-        return Specs.maxLevel-Math.abs(State.level - toFloor);
+	  Math.abs(Specs.maxLevel-Specs.minLevel)-Math.abs(State.level-toFloor);
     }
   def countGoTo(direction:Direction):Int={
     direction match {
