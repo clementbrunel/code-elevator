@@ -28,7 +28,7 @@ object Log{
 	def warning(message:String)=display(Warning(),message)
 	
 	def severe(message:String)={
-			Mail.send(message + Elevator.toString)
+			Mail.send(message + Algo.toString)
 			display(Severe(),message)
 	}	
 }

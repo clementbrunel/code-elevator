@@ -48,5 +48,7 @@ class ElevatorTest extends FunSuite{
 	   assert(B.size===0, "Reset 0")
 	}
 	
+	
+	//TODO recommencer test apres refacto en list....
 }
 

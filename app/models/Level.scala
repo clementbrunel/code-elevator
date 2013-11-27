@@ -1,5 +1,5 @@
 package models
-
+import tools.Log
 
 class BuildingFile(private var floors:Map[Int,List[Person]]){
     def getFloors()=floors
@@ -23,33 +23,56 @@ object BuildingFile{
 object BuildingWaiters{
 	var initialTowerWaiters=BuildingFile.initialState
 	var levels=initialTowerWaiters.getFloors
+	
 	def isEmpty:Boolean=BuildingFile.isEmpty(levels)
+	
 	def reset:Unit=levels=BuildingFile.reset(levels)
+	
 	def add(level:Int,person:Waiter)=levels=BuildingFile.addPerson(level, person,levels)
+	
 	def minus(level:Int)=levels=BuildingFile.subPerson(level,levels)
+	
 	override def toString():String="BuildingWaiters" + levels.mkString(",")
+	
 	def size():Int=BuildingFile.size(levels)
+	
+	
 }
 
-object BuildingClients{
-	var initialTowerClients=BuildingFile.initialState
+
+//TODO check if delete work after refacto
+//object BuildingClients{
+//	var initialTowerClients=BuildingFile.initialState
+//	var levels=initialTowerClients.getFloors
+//	def isEmpty:Boolean=BuildingFile.isEmpty(levels)
+//	def reset:Unit=levels=BuildingFile.reset(levels)
+//	def add(level:Int,person:Client)=levels=BuildingFile.addPerson(level, person, levels)
+//	def minus(level:Int)=levels=BuildingFile.subPerson(level,levels)
+//	override def toString():String="BuildingClients" + levels.mkString(",")
+//	def size():Int=BuildingFile.size(levels)
+//}
+class BuildingClients{
+    var state=new State()
+  	var initialTowerClients=BuildingFile.initialState
 	var levels=initialTowerClients.getFloors
 	def isEmpty:Boolean=BuildingFile.isEmpty(levels)
 	def reset:Unit=levels=BuildingFile.reset(levels)
 	def add(level:Int,person:Client)=levels=BuildingFile.addPerson(level, person, levels)
 	def minus(level:Int)=levels=BuildingFile.subPerson(level,levels)
-	override def toString():String="BuildingClients" + levels.mkString(",")
 	def size():Int=BuildingFile.size(levels)
+	
+	override def toString():String=levels.map (level => "Level: "+level._1+","+level._2.size).mkString("/")+"\n"
 }
 
 
 object Specs{
   var clientPond=2
   var waiterPond=1
-  var minLevel=(-13)
-  var maxLevel=27 
+  var minLevel=(0)
+  var maxLevel=5 
   var bestCapacity=10
   var maxCapacity=60
+  var cabinCount=1
   val detectionSeuil=3
   
 }

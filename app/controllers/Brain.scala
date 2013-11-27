@@ -14,6 +14,7 @@ import tools.Mail
 import models.ResetForm
 import models.ConfigForm
 import tools.LogLevel
+import tools.Log
 
 
 
@@ -38,6 +39,7 @@ object Brain  extends Controller {
 	    	"pondwaiter" -> number,
 	    	"minlevel"-> number,
 	    	"maxlevel" -> number,
+	    	"cabinCount" -> number,
 	    	"bestcapacity" -> number,
 	    	"maxCapacity" -> number
 	    )(ConfigForm.apply)(ConfigForm.unapply)
@@ -46,9 +48,9 @@ object Brain  extends Controller {
   def CalcResponse(action:String="")= {
 	    Action {
 	      if (!action.isEmpty()){
-	      Log.info("Brain Response "+ action)
+	    	  Log.info("Brain Response "+ action)
 	      }
-		    Elevator.ResetManuAsked match {
+		  Algo.ResetManuAsked match {
 		      case 0 => Ok(action)
 		      case 1 => {
 		        Log.info("*****************resetManuDone*************************" )
@@ -88,22 +90,25 @@ object Brain  extends Controller {
 					Specs.waiterPond=success.pondwaiter
 					Specs.minLevel=success.minLevel
 					Specs.maxLevel=success.maxLevel
+					Specs.cabinCount=success.cabinCount
 					Specs.bestCapacity=success.bestCapacity
 					Specs.maxCapacity=success.maxCapacity
 					val filledForm = FormConfig.fill(ConfigForm(success.emailSend,success.displayLogs,success.levelLogs,success.algo,
-					    Specs.clientPond,Specs.waiterPond,Specs.minLevel,Specs.maxLevel,Specs.bestCapacity,Specs.maxCapacity))
+					    Specs.clientPond,Specs.waiterPond,Specs.minLevel,Specs.maxLevel,Specs.cabinCount,Specs.bestCapacity,Specs.maxCapacity))
 				    Ok(views.html.index("Good Config",FormReset,filledForm,LogLevel.ListLevel,Algo.ListAlgo))
 				}
     		)
   }
   
+  
+  //TODO rajouter eframe avec vue + liste concurrent a affronter
   def index() = Action {
-    val message = Elevator.ResetManuAsked match {
+    val message = Algo.ResetManuAsked match {
       case 1 	=> "Reset in Progress"
       case 0 	=> "Application is ready"
     }
     val filledConfigForm = FormConfig.fill(ConfigForm(Mail.isActivated,Log.displayLogs,Log.displayLevel,Algo.currentAlgo.name,
-        Specs.clientPond,Specs.waiterPond,Specs.minLevel,Specs.maxLevel,Specs.bestCapacity,Specs.maxCapacity))
+        Specs.clientPond,Specs.waiterPond,Specs.minLevel,Specs.maxLevel,Specs.cabinCount,Specs.bestCapacity,Specs.maxCapacity))
     Ok(views.html.index(message,FormReset,filledConfigForm,LogLevel.ListLevel,Algo.ListAlgo))
   }
   
@@ -116,7 +121,7 @@ object Brain  extends Controller {
 				// Cas de reussite du formulaire
 				success => {
 					Log.info("resetManu" + message)
-				    Elevator.resetManuAsked(1)
+				    Algo.resetManuAsked(1)
 				    Redirect(routes.Brain.index())    
 				}
     		)
@@ -125,54 +130,72 @@ object Brain  extends Controller {
   def call(atFloor:Int, to:String) ={
     Log.info("call atfloor" + atFloor + "To"+ to)
 //Verifier si la modif annule le bug avec l arrive d un waiter au bon level -> OK
-    Elevator.addWaiterOrNot(atFloor, Waiter(atFloor,Direction.labelToDirection(to)))
-    Log.debug("call End Waiters " +Elevator.toString) 
+    Algo.addWaiterOrNot(atFloor, Waiter(atFloor,Direction.labelToDirection(to)))
+    Log.debug("call End Waiters " +Algo.toString) 
     CalcResponse()
   }
   
-  def go(floorToGo:Int) =  {
+  def go(floorToGo:Int,cabin:Int) =  {
     Log.info("floorToGo" + floorToGo)
-    BuildingClients.add(floorToGo,Client(floorToGo))
-    Log.debug("go Clients" +Elevator.toString) 
+    val cabineConcerned =Algo.getCabineByIndex(cabin)
+    cabineConcerned.add(floorToGo,Client(floorToGo))
+    Log.debug("go Clients" +Algo.toString) 
     CalcResponse()
   }
   
-  def userHasEntered() =  {
+  def userHasEntered(cabin:Int) =  {
     Log.info("userHasEntered")
-    BuildingWaiters.minus(State.level)
-//    Log.debug("userHasEntered End" +Elevator.toString) 
+    val cabineConcerned =Algo.getCabineByIndex(cabin)
+    BuildingWaiters.minus(cabineConcerned.state.level)
+//    Log.debug("userHasEntered End" +Algo.toString) 
     CalcResponse()
   }
   
-  def userHasExited() =  {
+  def userHasExited(cabin:Int) =  {
     Log.info("userHasExited")
-    BuildingClients.minus(State.level)
+    val cabineConcerned =Algo.getCabineByIndex(cabin)
+    cabineConcerned.minus(cabineConcerned.state.level)
     CrashDetection.resetCounter
-//    Log.debug("userHasExited End" + Elevator.toString) 
+//    Log.debug("userHasExited End" + Algo.toString) 
     CalcResponse()
   }
   
-  def reset(message:String, lowerFloor:Int, higherFloor:Int, cabinSize:Int) =  {
+  def reset(message:String, lowerFloor:Int, higherFloor:Int, cabinSize:Int,cabinCount:Int) =  {
     Log.info("reset" + message)
     Log.severe("Application has automatically reseted :"+ message+ " lowerFloor : " +lowerFloor+" higherFloor : " +higherFloor+" cabinSize : " + cabinSize   )
     if (lowerFloor.!=(-1)) {Specs.minLevel=lowerFloor}
     if (higherFloor.!=(-1)) {Specs.maxLevel=higherFloor}
     if (cabinSize.!=(-1)) {Specs.maxCapacity=cabinSize}
-    Elevator.resetAll
-    Log.debug("reset Clients " +Elevator.toString) 
+    if (cabinCount.!=(-1)) {Specs.cabinCount=cabinCount}
+    Algo.resetAll
+    Log.debug("reset Clients " +Algo.toString) 
     CalcResponse()
   }
     
   def nextCommand()={Timer.chrono {
 	    Log.info("nextCommand")
 	    CrashDetection.resetHelp
-	    val action = Elevator.nextCommand
+	    val action = Algo.nextCommands().head
 	    if	(CrashDetection.isCrashed()){
 	      Log.warning("Application is going to restart")
 	    }
-	    Log.debug("nextCommand passed " + Elevator.toString) 
+	    Log.debug("nextCommand passed " + Algo.toString) 
 	    Log.info("nextCommand Response " + action.label) 
 	    CalcResponse(action.label)
+  	}
+  }
+  
+   def nextCommands()={Timer.chrono {
+	    Log.info("nextCommandS for " + Specs.cabinCount)
+	    CrashDetection.resetHelp
+	    val actions:List[Command] = Algo.nextCommands()
+	    if	(CrashDetection.isCrashed()){
+	      Log.warning("Application is going to restart")
+	    }
+	    Log.debug("nextCommands passed " + Algo.toString) 
+	    val stringActions = actions.map(act => act.label).mkString("","\n","\n")
+	    Log.info("nextCommands Responses " + stringActions ) 
+	    CalcResponse(stringActions)
   	}
   }
 }

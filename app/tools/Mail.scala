@@ -8,6 +8,7 @@ object Mail {
    def send(message:String){
 	val mail = use[MailerPlugin].email
 	mail.setSubject("[Elevator-Brain] Error");
+	//redirection sur un mail perso
 	mail.setRecipient("Brain-Elevator <zemize78@randomail.net>");
 	mail.setFrom("Brain-Elevator <noreply@email.com>");
 	//sends html
@@ -18,9 +19,8 @@ object Mail {
 	  Log.debug("******************A mail has bee sent********************")
 	}
 	//sends text/text
-//	mail.send(message);
+	//	mail.send(message);
 	//sends both text and html
-//	mail.send( "text", "<html>html</html>");
-	
+	//	mail.send( "text", "<html>html</html>");
    }
 }

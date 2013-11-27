@@ -11,9 +11,10 @@ GET     /assets/*file               		controllers.Assets.at(path="/public", file
 
 #Elevator
 GET		/call								controllers.Brain.call(atFloor : Int ,to : String)
-GET		/go									controllers.Brain.go(floorToGo : Int)
-GET		/userHasEntered						controllers.Brain.userHasEntered()
-GET		/userHasExited						controllers.Brain.userHasExited()
-GET		/reset								controllers.Brain.reset(cause : String, lowerFloor:Int?=-1, higherFloor:Int?=-1, cabinSize:Int?=-1)
+GET		/go									controllers.Brain.go(floorToGo : Int,cabin:Int?=0)
+GET		/userHasEntered						controllers.Brain.userHasEntered(cabin:Int?=0)
+GET		/userHasExited						controllers.Brain.userHasExited(cabin:Int?=0)
+GET		/reset								controllers.Brain.reset(cause : String, lowerFloor:Int?=-1, higherFloor:Int?=-1, cabinSize:Int?=-1,cabinCount:Int?=-1)
 GET		/resetManu							controllers.Brain.resetManu(cause : String)
 GET 	/nextCommand						controllers.Brain.nextCommand()
+GET		/nextCommands						controllers.Brain.nextCommands()
