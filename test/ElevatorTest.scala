@@ -49,6 +49,6 @@ class ElevatorTest extends FunSuite{
 	}
 	
 	
-	//TODO recommencer test apres refacto en list....
+
 }
 

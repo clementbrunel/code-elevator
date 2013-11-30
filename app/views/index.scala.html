@@ -1,70 +1,73 @@
-@(message: String,addResetForm:Form[ResetForm],configForm:Form[ConfigForm],logLevels:Seq[(String, String)],algos:Seq[(String, String)])
+@(message: String,addResetForm:Form[ResetForm],configForm:Form[ConfigForm],concurentForm:Form[ConcurentForm],logLevels:Seq[(String, String)],algos:Seq[(String, String)])
 @import helper._ 
 @import helper.twitterBootstrap._
 
 @main("Welcome to Play") {
-	<div class="span12">
+<div class="row-fluid">
+   <div class="span8">
+   <h2 class="text-center">Configuration</h2>
+	<div>
 		<p>@message</p>
-		<div class="FormConfig">
-		@form(action =routes.Brain.config(),'class -> "form-horizontal"){
-			<div class="span6">
-			@checkbox(configForm("emailSender"),'_label ->"Email Sender on Log severe",
-				'_showErrors -> false,
-				'_showConstraints -> false,
-				'_class -> "control-group") 
-			
-				@checkbox(configForm("displayLogs"),'_label ->"Display Logs",
-				'_showErrors -> false,
-				'_showConstraints -> false,
-				'_class -> "control-group")
+			<div class="FormConfig">
+			@form(action =routes.Brain.config(),'class -> "form-horizontal"){
+				<div class="span6">
+				@checkbox(configForm("emailSender"),'_label ->"Email Sender on Log severe",
+					'_showErrors -> false,
+					'_showConstraints -> false,
+					'_class -> "control-group") 
 				
-				@select(configForm("levelLogs"),options=logLevels,
-				'_label ->"Log Level",
-				'_showErrors -> false,
-				'_showConstraints -> false,
-				'_class -> "control-group"
-				)
-				
-				@select(configForm("algo"),options=algos,
-				'_label ->"Select Current algorithm",
-				'_showErrors -> false,
-				'_showConstraints -> false,
-				'_class -> "control-group"
-				)
-				
-				@inputText(configForm("pondclient"),'_label -> "Client ponderation", 'class -> "control-group", '_showErrors -> true,'_showConstraints -> false)
-				
-				@inputText(configForm("pondwaiter"),'_label -> "Waiter ponderation", 'class -> "control-group", '_showErrors -> true,'_showConstraints -> false)
-			</div>
-			<div class="span6">
-				@inputText(configForm("minlevel"),'_label -> "Level Min", 'class -> "control-group", '_showErrors -> true,'_showConstraints -> false)
-				
-				@inputText(configForm("maxlevel"),'_label -> "Level Max", 'class -> "control-group", '_showErrors -> true,'_showConstraints -> false)
-				
-				@inputText(configForm("cabinCount"),'_label -> "Number of cab", 'class -> "control-group", '_showErrors -> true,'_showConstraints -> false)
-				
-				@inputText(configForm("bestcapacity"),'_label -> "Target Capacity", 'class -> "control-group", '_showErrors -> true,'_showConstraints -> false)
-				
-				@inputText(configForm("maxCapacity"),'_label -> "Max Capacity", 'class -> "control-group", '_showErrors -> true,'_showConstraints -> false)
-				<div class="form-actions">
-		  				<button type="submit" class="btn btn-primary">Save changes</button>
+					@checkbox(configForm("displayLogs"),'_label ->"Display Logs",
+					'_showErrors -> false,
+					'_showConstraints -> false,
+					'_class -> "control-group")
+					
+					@select(configForm("levelLogs"),options=logLevels,
+					'_label ->"Log Level",
+					'_showErrors -> false,
+					'_showConstraints -> false,
+					'_class -> "control-group"
+					)
+					
+					@select(configForm("algo"),options=algos,
+					'_label ->"Select Current algorithm",
+					'_showErrors -> false,
+					'_showConstraints -> false,
+					'_class -> "control-group"
+					)
+					
+					@inputText(configForm("pondclient"),'_label -> "Client ponderation", 'class -> "control-group", '_showErrors -> true,'_showConstraints -> false)
+					
+					@inputText(configForm("pondwaiter"),'_label -> "Waiter ponderation", 'class -> "control-group", '_showErrors -> true,'_showConstraints -> false)
 				</div>
-			</div>
-		
-		}
-		@if(configForm.hasGlobalErrors) {
-    		<ul>
-    			@configForm.globalErrors.foreach { error =>
-        		<li>error.message</li>
-    			}
-    		</ul>
-		}	
+				<div class="span6">
+					@inputText(configForm("minlevel"),'_label -> "Level Min", 'class -> "control-group", '_showErrors -> true,'_showConstraints -> false)
+					
+					@inputText(configForm("maxlevel"),'_label -> "Level Max", 'class -> "control-group", '_showErrors -> true,'_showConstraints -> false)
+					
+					@inputText(configForm("cabinCount"),'_label -> "Number of cab", 'class -> "control-group", '_showErrors -> true,'_showConstraints -> false)
+					
+					@inputText(configForm("bestcapacity"),'_label -> "Target Capacity", 'class -> "control-group", '_showErrors -> true,'_showConstraints -> false)
+					
+					@inputText(configForm("maxCapacity"),'_label -> "Max Capacity", 'class -> "control-group", '_showErrors -> true,'_showConstraints -> false)
+					<div class="form-actions">
+			  				<button type="submit" class="btn btn-primary">Save changes</button>
+					</div>
+				</div>
+			
+			}
+			@if(configForm.hasGlobalErrors) {
+	    		<ul>
+	    			@configForm.globalErrors.foreach { error =>
+	        		<li>error.message</li>
+	    			}
+	    		</ul>
+			}	
 		</div>
 	</div>
-	<div class="span11">
-		<div class="span6">
+	<div>
+		<div class="span11">
 			<div id="config">
-				@form(routes.Brain.resetManu("Manual Reset")){
+			@form(routes.Brain.resetManu("Manual Reset")){
 				<div>
 					<div>
 					Reset the application and send an Error to server
@@ -74,20 +77,39 @@
 					</div>
 				@inputText(addResetForm("cause"),'_label -> "Cause*", 'class -> "span12", '_showErrors -> true,'_showConstraints -> false)
 				</div>
-				}
+			}
 				
 		
-				@if(configForm.hasGlobalErrors) {
+			@if(configForm.hasGlobalErrors) {
 	    		<ul>
 	    			@configForm.globalErrors.foreach { error =>
 	        		<li>error.message</li>
 	    			}
 	    		</ul>
-				}		
+			}		
 			</div>	
 		</div>
-		<div class="span6">
+	</div>
+ </div>	 <!--Fin de Span 6  -->
+ <div class="span4">
+    <div class="span12" id="vizualization">
+    	<h2 class="text-center">Elevator visualisation</h2>
+    	<div class="row-fluid">
+    		<div class="span12 FormConcu">
+	    	   @form(action =routes.Brain.concurent,'class -> "form-vertical"){
+		        @inputText(concurentForm("concurent"),'_label -> "Concurrent", 'class -> "control-group", '_showErrors -> true,'_showConstraints -> false)
+		       }
+	       </div>
+	    </div> 
+	    <div class="row-fluid">  
+	    	<div class="span11 offset1">
 	
+				<iframe src="http://elevator-battle.ybonnel.eu.cloudbees.net/#/battle/H4st0/@concurentForm.value match {
+					case None 				=> {"-"}
+					case Some(modelConcu)	=> {@modelConcu.concurent}
+				}" scrolling="no" class="span12" height="1600px" id="iframe" seamless/>	
+			</div>
 		</div>
 	</div>
+</div>		
 }

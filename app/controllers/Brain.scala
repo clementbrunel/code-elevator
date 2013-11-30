@@ -13,6 +13,7 @@ import tools.Log
 import tools.Mail
 import models.ResetForm
 import models.ConfigForm
+import models.ConcurentForm
 import tools.LogLevel
 import tools.Log
 
@@ -28,7 +29,11 @@ object Brain  extends Controller {
 	    	)(ResetForm.apply)(ResetForm.unapply)
    )
    
-   
+   val FormConcurent= Form (
+       mapping(
+           "concurent"-> nonEmptyText
+           )(ConcurentForm.apply)(ConcurentForm.unapply)
+       )
    val FormConfig = Form(
         mapping(
 	    	"emailSender" 	-> boolean,
@@ -50,7 +55,7 @@ object Brain  extends Controller {
 	      if (!action.isEmpty()){
 	    	  Log.info("Brain Response "+ action)
 	      }
-		  Algo.ResetManuAsked match {
+		  Algo.ResetManuAsked.code match {
 		      case 0 => Ok(action)
 		      case 1 => {
 		        Log.info("*****************resetManuDone*************************" )
@@ -75,7 +80,7 @@ object Brain  extends Controller {
          FormConfig.bindFromRequest.fold(
 				// Cas d erreurs du formulaire
 				errors => {
-				    Ok(views.html.index("Bad Config",FormReset,errors,LogLevel.ListLevel,Algo.ListAlgo))
+				    Ok(views.html.index("Bad Config",FormReset,errors,FormConcurent,LogLevel.ListLevel,Algo.ListAlgo))
 				},
 				// Cas de reussite du formulaire
 				success => {
@@ -95,33 +100,47 @@ object Brain  extends Controller {
 					Specs.maxCapacity=success.maxCapacity
 					val filledForm = FormConfig.fill(ConfigForm(success.emailSend,success.displayLogs,success.levelLogs,success.algo,
 					    Specs.clientPond,Specs.waiterPond,Specs.minLevel,Specs.maxLevel,Specs.cabinCount,Specs.bestCapacity,Specs.maxCapacity))
-				    Ok(views.html.index("Good Config",FormReset,filledForm,LogLevel.ListLevel,Algo.ListAlgo))
+					val filledFormConcurent=FormConcurent.fill(ConcurentForm(Specs.concuSelected))
+				    Ok(views.html.index("Good Config",FormReset,filledForm,filledFormConcurent,LogLevel.ListLevel,Algo.ListAlgo))
 				}
     		)
   }
   
+  def concurent()= Action {implicit request => 
+     FormConcurent.bindFromRequest.fold(
+         errors => {
+				    Ok(views.html.index("Bad Config",FormReset,FormConfig,errors,LogLevel.ListLevel,Algo.ListAlgo))
+				},
+		 success => {
+		  Specs.concuSelected = success.concurent
+		  Redirect(routes.Brain.index()) 
+		 }
+         )
+    }
   
-  //TODO rajouter eframe avec vue + liste concurrent a affronter
+  
+
   def index() = Action {
-    val message = Algo.ResetManuAsked match {
-      case 1 	=> "Reset in Progress"
-      case 0 	=> "Application is ready"
+    val message = Algo.ResetManuAsked.code match {
+	    case 0 	=> "Application is ready"  
+	    case other 	=> "Reset in Progress"   
     }
     val filledConfigForm = FormConfig.fill(ConfigForm(Mail.isActivated,Log.displayLogs,Log.displayLevel,Algo.currentAlgo.name,
         Specs.clientPond,Specs.waiterPond,Specs.minLevel,Specs.maxLevel,Specs.cabinCount,Specs.bestCapacity,Specs.maxCapacity))
-    Ok(views.html.index(message,FormReset,filledConfigForm,LogLevel.ListLevel,Algo.ListAlgo))
+    val filledFormConcurent=FormConcurent.fill(ConcurentForm(Specs.concuSelected))
+    Ok(views.html.index(message,FormReset,filledConfigForm,filledFormConcurent,LogLevel.ListLevel,Algo.ListAlgo))
   }
   
   def resetManu(message:String) = Action {implicit request =>
     FormReset.bindFromRequest.fold(
 				// Cas d erreurs du formulaire
 				errors => {
-				    Ok(views.html.index("Bad Reset",errors,FormConfig,LogLevel.ListLevel,Algo.ListAlgo))
+				    Ok(views.html.index("Bad Reset",errors,FormConfig,FormConcurent,LogLevel.ListLevel,Algo.ListAlgo))
 				},
 				// Cas de reussite du formulaire
 				success => {
 					Log.info("resetManu" + message)
-				    Algo.resetManuAsked(1)
+				    Algo.resetManuAsked(ResetManu())
 				    Redirect(routes.Brain.index())    
 				}
     		)

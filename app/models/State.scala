@@ -34,6 +34,7 @@ class State(){
   def computeDistanceTo(toFloor:Int):Int= {
 	  Math.abs(Specs.maxLevel-Specs.minLevel)-Math.abs(level-toFloor);
     }
+  
   def countGoTo(cabine:BuildingClients,direction:Direction):Int={
     direction match {
       case up:UpDirection => (cabine.levels.filter(lev => (lev._1 > level)).map( lev => lev._2.size*computeDistanceTo(lev._1))).sum
@@ -45,6 +46,24 @@ class State(){
     direction match {
       case up:UpDirection => (BuildingWaiters.levels.filter(lev => (lev._1 > level)).map( lev => lev._2.size*computeDistanceTo(lev._1))).sum
       case down:DownDirection => (BuildingWaiters.levels.filter(lev => (lev._1 < level)).map( lev => lev._2.size*computeDistanceTo(lev._1))).sum
+    }
+  }
+  
+  def nearestCab(level:Int,cabine:BuildingClients,othersCabines:List[BuildingClients]):Boolean={
+    val mydiff =Math.abs(cabine.state.level-level)
+    val minOthersDiff=othersCabines.map(cab => Math.abs(cab.state.level-level)).min
+    mydiff<=minOthersDiff
+  }
+  
+  //only use on multielevator
+  def countCallFromNearest(direction:Direction,cabine:BuildingClients,othersCabines:List[BuildingClients]):Int={
+    direction match {
+      case up:UpDirection => 
+        (BuildingWaiters.levels.filter(lev => (lev._1 > level && nearestCab(level,cabine,othersCabines)))
+          .map( lev => lev._2.size*computeDistanceTo(lev._1))).sum
+      case down:DownDirection => 
+        (BuildingWaiters.levels.filter(lev => (lev._1 < level && nearestCab(level,cabine,othersCabines)))
+          .map( lev => lev._2.size*computeDistanceTo(lev._1))).sum
     }
   }
   
@@ -60,13 +79,37 @@ class State(){
       (Specs.clientPond * countGoTo(cabine,UpDirection()),
        Specs.clientPond * countGoTo(cabine,DownDirection()))
     }
-    CrashDetection.addHelp("countToTop" +tupleCoefs._1 + "countToDown" +tupleCoefs._2)
-    Log.debug("countToTop" +tupleCoefs._1 + "countToDown" +tupleCoefs._2)
+    CrashDetection.addHelp("calculPonderation countToTop" +tupleCoefs._1 + "countToDown" +tupleCoefs._2)
+    Log.debug("calculPonderation countToTop" +tupleCoefs._1 + "countToDown" +tupleCoefs._2)
     tupleCoefs
   }
   
-  def calculDirection(cabine:BuildingClients):Command={
-   val CoefsTopAndDown=calculPonderation(cabine)
+  def calculPonderationForList(cabine:BuildingClients,othersCabines:List[BuildingClients]):(Int,Int)={
+    val tupleCoefs=
+      if(cabine.size<Specs.bestCapacity){
+        CrashDetection.addHelp("Waiters are in calcul")
+    (Specs.clientPond * countGoTo(cabine,UpDirection()) + Specs.waiterPond * countCallFromNearest(UpDirection(),cabine,othersCabines),
+     Specs.clientPond * countGoTo(cabine,DownDirection()) + Specs.waiterPond * countCallFromNearest(DownDirection(),cabine,othersCabines))
+	}
+    else{
+       CrashDetection.addHelp("Waiters are NOT in calcul")
+      (Specs.clientPond * countGoTo(cabine,UpDirection()),
+       Specs.clientPond * countGoTo(cabine,DownDirection()))
+    }
+    CrashDetection.addHelp("calculPonderationForList countToTop" +tupleCoefs._1 + "countToDown" +tupleCoefs._2)
+    Log.debug("calculPonderationForList countToTop" +tupleCoefs._1 + "countToDown" +tupleCoefs._2)
+    tupleCoefs
+  }
+  
+  
+  def calculDirection(cabine:BuildingClients,othersCabines:List[BuildingClients]=Nil):Command={
+   val others=othersCabines.filter(cab => cab != cabine)
+   Log.info("Size of other cabine in State " + others)
+   val CoefsTopAndDown=if (others.isEmpty) {
+	   	calculPonderation(cabine)
+   	}else{
+	   	calculPonderationForList(cabine,others)
+   }
      CoefsTopAndDown match {
 		      case (countToTop,countToDown) if (countToTop > countToDown) =>  Up
 		      case (countToTop,countToDown) if (countToTop < countToDown) =>  Down

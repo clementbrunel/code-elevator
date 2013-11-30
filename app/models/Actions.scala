@@ -12,7 +12,6 @@ object Command{
       case "DOWN" 	=> Down()
       case "OPEN" 	=> Open()
       case "CLOSE" 	=> Close()
-      case "RESET" 	=> Reset()
       case other 	=> Nothing()
     }
     
@@ -33,9 +32,34 @@ case class Open() extends Command{
 case class Close() extends Command{
   def label = "CLOSE"
 }
-case class Reset() extends Command{
-  def label = "RESET"
+
+trait Reset extends withLabel{
+  def code:Int
 }
+
+case class NoReset() extends Reset{
+  def label = "NoReset"
+  def code = 0
+}
+
+case class ResetManu() extends Reset{
+  def label = "ResetManu"
+  def code = 1
+}
+
+case class ResetCrash() extends Reset{
+  def label = "ResetCrash"
+  def code = 2
+}
+
+case class CrashIsBetter() extends Reset{
+  def label = "CrashIsBetter"
+  def code = 3
+}
+
+
+
+
 
 trait Direction extends withLabel
 

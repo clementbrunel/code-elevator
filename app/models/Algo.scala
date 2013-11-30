@@ -10,9 +10,9 @@ trait Algo {
 }
 
 object Algo{
-  var currentAlgo:Algo=SmallTower()
+  var currentAlgo:Algo=MultiTower()
   var history:List[List[Int]]=List();
-  var ResetManuAsked = 0;
+  var ResetManuAsked:Reset = NoReset();
   var cabines=List[BuildingClients]()
   
   
@@ -20,11 +20,10 @@ object Algo{
     if (cabines.isEmpty){
       Algo.resetAll
     }
-    cabines.applyOrElse(index, 
-        {
-      Log.severe("Recuperation d'une cabine non existente" +index +" vs size" + cabines.size)
-      null}
-    )
+    cabines.lift(index) match {
+      case Some(cab) 	=> cab
+      case None 		=> Log.severe("Recuperation d'une cabine non existente" +index +" vs size" + cabines.size);null
+    }
   }
   
   def addWaiterOrNot(atFloor:Int,waiter:Waiter)={
@@ -37,39 +36,49 @@ object Algo{
 	    }
   }
     
-  //TODO des case class pour les differents resets
+  //res case class pour les differents resets
   def resetManuDone= {
-    ResetManuAsked=0;
+    ResetManuAsked=NoReset();
     }
-  def resetManuAsked(command:Int)= {
-    ResetManuAsked=command;
+  def resetManuAsked(ResetType:Reset)= {
+    ResetManuAsked=ResetType;
     }
-  def resetManuIsAsked()= {
-    ResetManuAsked!=0;
+  def resetManuIsAsked():Boolean= {
+    ResetManuAsked match {
+      case reset @NoReset() => false;
+      case otherReset 		=> true
     }
+   }
   
-  //TODO reset au changement d algo quand multi cible ou source
+
   def changeAlgo(name:String)={
     name match{
       case "BigTower" => currentAlgo=BigTower()
       case "SmallTower" => currentAlgo=SmallTower()
-      case "MultiTower" => currentAlgo=MultiTower()
+      case "MultiCabine" => currentAlgo=MultiTower()
     }
   }
    def nextCommands():List[Command]={
-     //TODO with crashDetection reactivation
+
 //     val lastAction=State.action
 //    	CrashDetection.addHelp("Lastaction " + State.action.label)
+     
     	var listbuf = new ListBuffer[Command]() 
     	for (cabine <- cabines){
-    	   val newCommand= currentAlgo.nextCommand(cabine)
+    	   var newCommand= currentAlgo.nextCommand(cabine)
+    	   currentAlgo match {
+    	     case multi @MultiTower(_) => {
+    	       //special improvement for multi
+    	     }
+    	     case _	=> ()
+    	   }
     	   cabine.state.update(newCommand)
     	   listbuf +=newCommand
     	}
     	val nextCommands=listbuf.toList
     	CrashDetection.addHelp(" nextCommand calculated " + nextCommands.map(com => com.label).mkString(","))
     	nextCommands
-    	//TODO Repair crashDetection
+
 //    	history=CrashDetection.add(history, State.level)
     	
 //    	 if (CrashDetection.isLooped(history)) {
@@ -89,7 +98,7 @@ object Algo{
    override def toString():String={
     " ElevatorProblem { Clients [ "+cabines.mkString("|")+"]"+
     " Waiters " + BuildingWaiters.levels.map (level => "Level: "+level._1+level._2.mkString(",",",","")).mkString("/")+"\n"+
-    " States" + cabines.map(cab => cab.state).mkString("|").toString + " ResetManuAsked " + ResetManuAsked+" CrashDetectionCounter " + CrashDetection.countAction+"\n"+
+    " States" + cabines.map(cab => cab.state).mkString("|").toString + " ResetManuAsked " + ResetManuAsked.label+" CrashDetectionCounter " + CrashDetection.countAction+"\n"+
     " History" +history.mkString(",")+" CabinesCount " +cabines.size+"}"
    }
    
@@ -99,8 +108,6 @@ object Algo{
     var listbufCab = new ListBuffer[BuildingClients]() 
     (1 to Specs.cabinCount)map(integer => listbufCab += new BuildingClients())
     cabines=listbufCab.toList
-//    cabines.foreach(cab =>cab.reset)
-//    cabines.foreach(cab =>cab.state.reset)
 	BuildingWaiters.reset
 	resetManuDone
 	CrashDetection.resetCounter
@@ -109,22 +116,20 @@ object Algo{
      
   def ListAlgo:Seq[(String, String)]=List(SmallTower().display,BigTower().display,MultiTower().display)
 }
+/*  Define in a new class
+case class MultiTowerc(name:String="MultiTower") extends Algo
+* */
 
-case class MultiTower(name:String="MultiTower") extends Algo{ 
-  def display = (name -> name) 
-   override def nextCommand(cabine:BuildingClients)= SmallTower().nextCommand(cabine)
-   
-}
 case class BigTower(name:String="BigTower") extends Algo{ 
   def display = (name -> name) 
   
   override def nextCommand(cabine:BuildingClients)={
-    //TODO The improvements for big tower Do later, after multitower
+
     CrashDetection.addHelp("in BigTower")
     val calculatedNextCommand = SmallTower().nextCommand(cabine)
     if (BuildingWaiters.size()>(Specs.bestCapacity*(Specs.maxLevel- Specs.minLevel))){
       Log.warning("Size Waiters" +BuildingWaiters.size() + "vs "+ Specs.bestCapacity*(Specs.maxLevel- Specs.minLevel))
-      Algo.resetManuAsked(3)
+      Algo.resetManuAsked(CrashIsBetter())
     }
     calculatedNextCommand
   }
@@ -136,15 +141,17 @@ case class SmallTower(name:String="SmallTower") extends Algo{
 	  	 CrashDetection.addHelp("in SmallTower")
 	  	 
     	if (BuildingWaiters.isEmpty && cabine.isEmpty){
-	       Nothing
+	       cabine.state.door match {
+	         case Closed()	=>Nothing
+	         case Opened()	=>Close
+	       }
 	    }
 	    else {
-	    	//TODO reactive crashDetection part2
+
 	    	//CrashDetection.incrementCounter
 		    val currentLevel=cabine.state.level
 		    val happyWaiters= BuildingWaiters.levels.getOrElse(currentLevel, Nil)
 		    val happyClients = cabine.levels.getOrElse(currentLevel, Nil)
-		   Log.info("BuildingClients.size" + cabine.size)
 		   (happyClients,happyWaiters,cabine.state.door) match {
 		      case(clients,_,Closed()) if clients.size>0=>{
 		    	  					CrashDetection.addHelp(" Clients a cet etage ")

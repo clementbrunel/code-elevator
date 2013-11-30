@@ -12,6 +12,19 @@ body {
 	background-color:black;
 	min-height:300px;
 	padding:1em;
+	height: 850px;
+}
+
+.FormConcu{
+	padding:0em 1em;
+}
+
+.FormConcu form{
+	margin-bottom:0px;
+}
+#vizualization{
+	background-color:#e0e0e0;
+	height: 830px;
 }
 
 .control-group {
@@ -23,9 +36,26 @@ margin-bottom: 20px;
 	border-top:0px;
 }
 
-.FormConfig label{
+.FormConfig label,.FormConcu label{
 	float:left;
 }
-.FormConfig input,.FormConfig select{
+.FormConfig input,.FormConfig select,.FormConcu input{
 	float:right;
+}
+
+#iframe{
+	margin-top: 0px;
+	background-color:transparent;
+	display:block;	
+	-moz-transform: scale(0.450);
+	-moz-transform-origin: 0 0;
+	-o-transform: scale(0.450);
+	-o-transform-origin: 0 0;
+	-webkit-transform: scale(0.450);
+	-webkit-transform-origin: 0 0;
+}
+
+
+#iframe body{
+	margin-top:0px !important;
 }
