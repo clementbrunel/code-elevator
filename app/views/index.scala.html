@@ -2,7 +2,7 @@
 @import helper._ 
 @import helper.twitterBootstrap._
 
-@main("Welcome to Play") {
+@main("GuichetVator") {
 <div class="row-fluid">
    <div class="span8">
    <h2 class="text-center">Configuration</h2>
@@ -49,6 +49,12 @@
 					@inputText(configForm("bestcapacity"),'_label -> "Target Capacity", 'class -> "control-group", '_showErrors -> true,'_showConstraints -> false)
 					
 					@inputText(configForm("maxCapacity"),'_label -> "Max Capacity", 'class -> "control-group", '_showErrors -> true,'_showConstraints -> false)
+					
+					@checkbox(configForm("autoReset"),'_label ->"Reset Auto",
+					'_showErrors -> false,
+					'_showConstraints -> false,
+					'_class -> "control-group") 
+					
 					<div class="form-actions">
 			  				<button type="submit" class="btn btn-primary">Save changes</button>
 					</div>
@@ -107,7 +113,7 @@
 				<iframe src="http://elevator-battle.ybonnel.eu.cloudbees.net/#/battle/H4st0/@concurentForm.value match {
 					case None 				=> {"-"}
 					case Some(modelConcu)	=> {@modelConcu.concurent}
-				}" scrolling="no" class="span12" height="1600px" id="iframe" seamless/>	
+				}" scrolling="yes" width="900px" height="1600px" id="iframe" seamless/>	
 			</div>
 		</div>
 	</div>

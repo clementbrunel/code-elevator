@@ -21,6 +21,8 @@ class State(){
 
   def update(processAction:Command):Command={processAction match {
     case open:Open => {door=Opened(); Log.debug("Update State open, Open the door")}
+    case openup:OpenUp=>{door=Opened(); Log.debug("Update State openup, Open the door")}
+    case opendown:OpenDown=>{door=Opened(); Log.debug("Update State OpenDown, Open the door")}
     case close:Close => {door=Closed(); Log.debug("Update State close, Close the door")}
     case up:Up =>  {this.++; Log.debug("Update State Up, level++")}
     case down:Down => {this.--; Log.debug("Update State Down, level--")}
@@ -49,20 +51,25 @@ class State(){
     }
   }
   
-  def nearestCab(level:Int,cabine:BuildingClients,othersCabines:List[BuildingClients]):Boolean={
+  def nearestCabs(level:Int,cabine:BuildingClients,othersCabines:List[BuildingClients]):Boolean={
     val mydiff =Math.abs(cabine.state.level-level)
-    val minOthersDiff=othersCabines.map(cab => Math.abs(cab.state.level-level)).min
-    mydiff<=minOthersDiff
+    val avgOthersDiff=average(othersCabines.map(cab => Math.abs(cab.state.level-level)))
+    mydiff<=avgOthersDiff
+  }
+  
+  //use for bigger list, only half of cab will regard the waiters
+  def average[T]( ts: Iterable[T] )( implicit num: Numeric[T] ) :Double= {
+  num.toDouble( ts.sum ) / ts.size
   }
   
   //only use on multielevator
   def countCallFromNearest(direction:Direction,cabine:BuildingClients,othersCabines:List[BuildingClients]):Int={
     direction match {
       case up:UpDirection => 
-        (BuildingWaiters.levels.filter(lev => (lev._1 > level && nearestCab(level,cabine,othersCabines)))
+        (BuildingWaiters.levels.filter(lev => (lev._1 > level && nearestCabs(level,cabine,othersCabines)))
           .map( lev => lev._2.size*computeDistanceTo(lev._1))).sum
       case down:DownDirection => 
-        (BuildingWaiters.levels.filter(lev => (lev._1 < level && nearestCab(level,cabine,othersCabines)))
+        (BuildingWaiters.levels.filter(lev => (lev._1 < level && nearestCabs(level,cabine,othersCabines)))
           .map( lev => lev._2.size*computeDistanceTo(lev._1))).sum
     }
   }
@@ -104,7 +111,7 @@ class State(){
   
   def calculDirection(cabine:BuildingClients,othersCabines:List[BuildingClients]=Nil):Command={
    val others=othersCabines.filter(cab => cab != cabine)
-   Log.info("Size of other cabine in State " + others)
+   Log.debug("Size of other cabine in State " + others)
    val CoefsTopAndDown=if (others.isEmpty) {
 	   	calculPonderation(cabine)
    	}else{

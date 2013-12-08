@@ -7,7 +7,7 @@ import java.text.SimpleDateFormat
 object Log{
     val curTimeFormat = new SimpleDateFormat("HH:mm:ss")
     var displayLogs=true;
-    var displayLevel=1;
+    var displayLevel=2;
     
     private def display(level:LogLevel,message:String)={
       val prefix=level.name+" "+curTimeFormat.format(Calendar.getInstance.getTime)+" "

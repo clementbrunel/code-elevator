@@ -12,6 +12,8 @@ object Command{
       case "DOWN" 	=> Down()
       case "OPEN" 	=> Open()
       case "CLOSE" 	=> Close()
+      case "OPEN_UP" 	=> OpenUp()
+      case "OPEN_DOWN" 	=> OpenDown()
       case other 	=> Nothing()
     }
     
@@ -28,6 +30,12 @@ case class Down() extends Command{
 }
 case class Open() extends Command{
   def label = "OPEN"
+}
+case class OpenUp() extends Command{
+  def label = "OPEN_UP"
+}
+case class OpenDown() extends Command{
+  def label = "OPEN_DOWN"
 }
 case class Close() extends Command{
   def label = "CLOSE"

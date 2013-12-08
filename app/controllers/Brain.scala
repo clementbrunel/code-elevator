@@ -46,6 +46,7 @@ object Brain  extends Controller {
 	    	"maxlevel" -> number,
 	    	"cabinCount" -> number,
 	    	"bestcapacity" -> number,
+	    	"autoReset" -> boolean,
 	    	"maxCapacity" -> number
 	    )(ConfigForm.apply)(ConfigForm.unapply)
    )
@@ -98,8 +99,10 @@ object Brain  extends Controller {
 					Specs.cabinCount=success.cabinCount
 					Specs.bestCapacity=success.bestCapacity
 					Specs.maxCapacity=success.maxCapacity
+					Specs.autoReset=success.autoReset
 					val filledForm = FormConfig.fill(ConfigForm(success.emailSend,success.displayLogs,success.levelLogs,success.algo,
-					    Specs.clientPond,Specs.waiterPond,Specs.minLevel,Specs.maxLevel,Specs.cabinCount,Specs.bestCapacity,Specs.maxCapacity))
+					    Specs.clientPond,Specs.waiterPond,Specs.minLevel,Specs.maxLevel,Specs.cabinCount,Specs.bestCapacity,
+					    Specs.autoReset,Specs.maxCapacity))
 					val filledFormConcurent=FormConcurent.fill(ConcurentForm(Specs.concuSelected))
 				    Ok(views.html.index("Good Config",FormReset,filledForm,filledFormConcurent,LogLevel.ListLevel,Algo.ListAlgo))
 				}
@@ -126,7 +129,8 @@ object Brain  extends Controller {
 	    case other 	=> "Reset in Progress"   
     }
     val filledConfigForm = FormConfig.fill(ConfigForm(Mail.isActivated,Log.displayLogs,Log.displayLevel,Algo.currentAlgo.name,
-        Specs.clientPond,Specs.waiterPond,Specs.minLevel,Specs.maxLevel,Specs.cabinCount,Specs.bestCapacity,Specs.maxCapacity))
+        Specs.clientPond,Specs.waiterPond,Specs.minLevel,Specs.maxLevel,Specs.cabinCount,Specs.bestCapacity,
+        Specs.autoReset,Specs.maxCapacity))
     val filledFormConcurent=FormConcurent.fill(ConcurentForm(Specs.concuSelected))
     Ok(views.html.index(message,FormReset,filledConfigForm,filledFormConcurent,LogLevel.ListLevel,Algo.ListAlgo))
   }

@@ -77,6 +77,11 @@ object Algo{
     	}
     	val nextCommands=listbuf.toList
     	CrashDetection.addHelp(" nextCommand calculated " + nextCommands.map(com => com.label).mkString(","))
+    	if (BuildingWaiters.size()>(Specs.bestCapacity*(Specs.maxLevel- Specs.minLevel)) && Specs.autoReset){
+    		Log.warning("Size Waiters" +BuildingWaiters.size() + "vs "+ Specs.bestCapacity*(Specs.maxLevel- Specs.minLevel))
+    		CrashDetection.addHelp("autoReset asked " +BuildingWaiters.size() + "vs "+ Specs.bestCapacity*(Specs.maxLevel- Specs.minLevel))
+    		Algo.resetManuAsked(CrashIsBetter())
+    	}
     	nextCommands
 
 //    	history=CrashDetection.add(history, State.level)
@@ -127,10 +132,7 @@ case class BigTower(name:String="BigTower") extends Algo{
 
     CrashDetection.addHelp("in BigTower")
     val calculatedNextCommand = SmallTower().nextCommand(cabine)
-    if (BuildingWaiters.size()>(Specs.bestCapacity*(Specs.maxLevel- Specs.minLevel))){
-      Log.warning("Size Waiters" +BuildingWaiters.size() + "vs "+ Specs.bestCapacity*(Specs.maxLevel- Specs.minLevel))
-      Algo.resetManuAsked(CrashIsBetter())
-    }
+//	 options...
     calculatedNextCommand
   }
 }

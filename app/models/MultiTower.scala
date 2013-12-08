@@ -11,10 +11,7 @@ case class MultiTower(name:String="MultiCabine") extends Algo{
    
    override def nextCommand(cabine:BuildingClients)= {
     val calculated=CalcNextCommand(cabine)
-    if (BuildingWaiters.size()>(Specs.bestCapacity*(Specs.maxLevel- Specs.minLevel))){
-      Log.warning("Size Waiters" +BuildingWaiters.size() + "vs "+ Specs.bestCapacity*(Specs.maxLevel- Specs.minLevel))
-      Algo.resetManuAsked(CrashIsBetter())
-    }
+    //options here
     calculated
   }
    
@@ -38,14 +35,14 @@ case class MultiTower(name:String="MultiCabine") extends Algo{
 		      case(clients,_,Closed()) if clients.size>0=>{
 		    	  					CrashDetection.addHelp(" Clients a cet etage ")
 						        	Log.debug("OPEN");  
-						            Open
+						            OpenAccordDirection(cabine)
 		      							}
 		      case(_,waiters,Closed()) if waiters.size>0 && cabine.size<Specs.bestCapacity =>{
 		      					if (!waiters.filter(waiter => (waiter.asInstanceOf[Waiter].direction.label==cabine.state.action.label)).isEmpty || cabine.isEmpty
 		      					    ||cabine.state.level==Specs.minLevel ||cabine.state.level==Specs.maxLevel) {
 		    	  				Log.debug("Enter in Optimisation with direction :" + cabine.state.action.label +" cabine.isEmpty " + cabine.isEmpty);  
 	    	  					CrashDetection.addHelp(" Waiters in good direction so open ")
-		    	  				Open
+		    	  				OpenAccordDirection(cabine)
 		      					}
 		      					else{
 		      					  Log.debug("list of waiter no stop because of direction" + happyWaiters + " vs " +cabine.state.action )
@@ -76,13 +73,23 @@ case class MultiTower(name:String="MultiCabine") extends Algo{
   
   	def goToGoodInitial(currentCab:BuildingClients,cabines:List[BuildingClients]):Command={
   	  //initial Cabine is closed. We search the best level for waiting futures waiters
-  	 val IndexOfThisCab = cabines.indexOf(currentCab)
-     Log.debug("Index ox Current Cabine" + IndexOfThisCab)
-     val idealLevel=(cabines.indexOf(currentCab)+1)*((Specs.maxLevel-Specs.minLevel) / (cabines.size+1))
+  	 val IndexOfThisCab = cabines.indexOf(currentCab)+1
+     Log.debug("Index ox Current Cabine +1: " + IndexOfThisCab)
+     val cran:Double = Math.abs(Specs.maxLevel-Specs.minLevel).toDouble/(cabines.size+1)
+     val idealLevel =Specs.minLevel + IndexOfThisCab*cran.round.toInt
+//     val idealLevel=(cabines.indexOf(currentCab)+1)*((Specs.maxLevel-Specs.minLevel) / (cabines.size+1))
      Log.debug("Ideal Level" + idealLevel)
      if (currentCab.state.level<idealLevel){Up}
      else if (currentCab.state.level>idealLevel) {Down}
      else{Nothing}
+  	}
+  	
+  	def OpenAccordDirection(cabine:BuildingClients):Command={
+  	  cabine.state.action match {
+  	    case up:Up 		=> if (cabine.state.level==Specs.maxLevel) OpenDown() else OpenUp()
+  	    case down:Down  => if (cabine.state.level==Specs.minLevel) OpenUp() else OpenDown()
+  	    case other		=> Open
+  	  }	  
   	}
   
 }

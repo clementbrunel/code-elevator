@@ -67,7 +67,7 @@ object Specs{
   var maxCapacity=60
   var cabinCount=1
   val detectionSeuil=3
-  
-  var concuSelected="-"
+  var autoReset=true
+  var concuSelected="a14n"
   
 }
