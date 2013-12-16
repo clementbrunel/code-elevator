@@ -14,6 +14,12 @@ object Test {
                                                   //| , 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40)
    val cran:Double = levels.size.toDouble/(cab.size+1)
                                                   //> cran  : Double = 5.666666666666667
+   val listOfIdeal = (1 to 8).toList. map (i => i*cran.round.toInt)
+                                                  //> listOfIdeal  : List[Int] = List(6, 12, 18, 24, 30, 36, 42, 48)
+   val nottaken=listOfIdeal.filter (level => !cab.contains(level))
+                                                  //> nottaken  : List[Int] = List(12, 18, 24, 30, 36, 42, 48)
+   val nearest =  nottaken.map(level => (Math.abs(40-level),level)).min
+                                                  //> nearest  : (Int, Int) = (2,42)
    
    val idealLevel2 =(cab.indexOf(8)+1)            //> idealLevel2  : Int = 8
 	 val test2=(-10) + idealLevel2*cran.round.toInt

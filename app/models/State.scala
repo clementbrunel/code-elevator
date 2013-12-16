@@ -111,7 +111,7 @@ class State(){
   
   def calculDirection(cabine:BuildingClients,othersCabines:List[BuildingClients]=Nil):Command={
    val others=othersCabines.filter(cab => cab != cabine)
-   Log.debug("Size of other cabine in State " + others)
+   Log.debug("Size of other cabine in State " + others.size)
    val CoefsTopAndDown=if (others.isEmpty) {
 	   	calculPonderation(cabine)
    	}else{

@@ -76,7 +76,14 @@ case class MultiTower(name:String="MultiCabine") extends Algo{
   	 val IndexOfThisCab = cabines.indexOf(currentCab)+1
      Log.debug("Index ox Current Cabine +1: " + IndexOfThisCab)
      val cran:Double = Math.abs(Specs.maxLevel-Specs.minLevel).toDouble/(cabines.size+1)
-     val idealLevel =Specs.minLevel + IndexOfThisCab*cran.round.toInt
+     
+     val listOfIdeal = (Specs.minLevel to Specs.maxLevel).toList. map (i => i*cran.round.toInt)
+     val nottaken=listOfIdeal.filter (level => !cabines.map(cab => cab.state.level).contains(level))
+     val idealLevel = nottaken.map(level => (Math.abs(currentCab.state.level-level),level)).min._2
+     
+     //not dynamic : bad
+//     val idealLevel =Specs.minLevel + IndexOfThisCab*cran.round.toInt
+     //start from 0 : bad
 //     val idealLevel=(cabines.indexOf(currentCab)+1)*((Specs.maxLevel-Specs.minLevel) / (cabines.size+1))
      Log.debug("Ideal Level" + idealLevel)
      if (currentCab.state.level<idealLevel){Up}
@@ -85,11 +92,16 @@ case class MultiTower(name:String="MultiCabine") extends Algo{
   	}
   	
   	def OpenAccordDirection(cabine:BuildingClients):Command={
-  	  cabine.state.action match {
-  	    case up:Up 		=> if (cabine.state.level==Specs.maxLevel) OpenDown() else OpenUp()
-  	    case down:Down  => if (cabine.state.level==Specs.minLevel) OpenUp() else OpenDown()
-  	    case other		=> Open
-  	  }	  
+  	  if (cabine.isEmpty) {
+  	    Open
+  	  }
+  	  else {
+	  	  cabine.state.action match {
+	  	    case up:Up 		=> if (cabine.state.level==Specs.maxLevel) OpenDown() else OpenUp()
+	  	    case down:Down  => if (cabine.state.level==Specs.minLevel) OpenUp() else OpenDown()
+	  	    case other		=> Open
+	  	  }	  
+  	  }
   	}
   
 }
